@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import { API_BASE } from "../config";
 
 export default function Admin(){
   const [ideas, setIdeas] = useState([]);
@@ -8,7 +9,7 @@ export default function Admin(){
   async function fetchAll(){
     try {
       const token = localStorage.getItem("token");
-      const res = await axios.get("http://localhost:5000/api/ideas/all", { headers: { Authorization: `Bearer ${token}` }});
+      const res = await axios.get(`${API_BASE}/api/ideas/all`, { headers: { Authorization: `Bearer ${token}` }});
       setIdeas(res.data);
     } catch (err){
       alert(err.response?.data?.message || err.message);
@@ -20,7 +21,7 @@ export default function Admin(){
   async function approve(id){
     try {
       const token = localStorage.getItem("token");
-      await axios.put(`http://localhost:5000/api/ideas/approve/${id}`, {}, { headers: { Authorization: `Bearer ${token}` }});
+      await axios.put(`${API_BASE}/api/ideas/approve/${id}`, {}, { headers: { Authorization: `Bearer ${token}` }});
       alert("Idea approved");
       fetchAll();
     } catch (err){
