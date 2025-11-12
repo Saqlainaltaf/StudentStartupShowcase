@@ -1,0 +1,42 @@
+# 🎓 Student Startup Idea Showcase Platform
+
+A full-stack platform that allows students to upload and share startup ideas, with admin moderation and public visibility — fostering innovation and collaboration in academia.
+
+---
+
+## 🚀 Features
+
+**Students**
+- Register and log in
+- Submit startup ideas (problem, solution, target market, etc.)
+- Upload supporting documents (future feature)
+
+**Admins**
+- Admin login (`admin` / `admin`)
+- Approve or reject student submissions
+- View and manage all startup ideas
+
+**Public**
+- Browse approved ideas
+- Discover innovation within the university
+
+---
+
+## 🧠 Tech Stack
+
+| Layer | Technology |
+|-------|-------------|
+| Frontend | React + Bootstrap |
+| Backend | Node.js + Express |
+| Database | MongoDB Atlas |
+| Authentication | JWT (JSON Web Token) |
+
+---
+
+## ⚙️ Local Setup
+
+### Backend
+```bash
+cd backend
+npm install
+npm run dev
