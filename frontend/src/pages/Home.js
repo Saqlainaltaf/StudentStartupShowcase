@@ -1,4 +1,4 @@
-// frontend/src/pages/Home.js
+// frontend/src/pages/Home.js updated
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
