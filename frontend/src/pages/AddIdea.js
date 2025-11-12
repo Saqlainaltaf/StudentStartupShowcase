@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import axios from "axios";
+import { API_BASE } from "../config";
 import { useNavigate } from "react-router-dom";
 
 export default function AddIdea(){
@@ -11,7 +12,7 @@ export default function AddIdea(){
     try {
       const token = localStorage.getItem("token");
       if(!token) return alert("Please login first.");
-      await axios.post("http://localhost:5000/api/ideas", form, { headers: { Authorization: `Bearer ${token}` }});
+      await axios.post(`${API_BASE}/api/ideas`, form, { headers: { Authorization: `Bearer ${token}` }});
       alert("Idea submitted (pending)");
       navigate("/");
     } catch (err){
