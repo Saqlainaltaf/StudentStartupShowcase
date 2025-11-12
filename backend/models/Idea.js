@@ -2,15 +2,28 @@
 import mongoose from "mongoose";
 
 const ideaSchema = new mongoose.Schema({
-  title: { type: String, required: true },
+  title: { type: String, required: true },                 // startup name
+  logoUrl: { type: String },                               // optional logo/image URL
+  founders: { type: String },                              // names + year/program (free text)
+  contact: {                                              // contact info or link
+    email: String,
+    phone: String,
+    form: String
+  },
+  shortDescription: String,                                // 1-2 sentence blurb
   problemStatement: String,
   solution: String,
-  targetMarket: String,
-  teamMembers: String,
+  currentStage: { type: String, enum: ["Ideation","Prototype","MVP","Market-ready"], default: "Ideation" },
+  teamMembers: String,                                     // names, roles
+  skillsNeeded: [String],                                  // array of strings
+  achievements: String,                                    // traction, awards, metrics
+  mentor: String,
+  callToAction: String,                                    // e.g. "Join this Startup", or contact CTA
   category: String,
   documentUrl: String,
   createdBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
-  status: { type: String, enum: ["pending", "approved"], default: "pending" },
+  status: { type: String, enum: ["pending","approved"], default: "pending" },
+  featured: { type: Boolean, default: false },             // <-- new: for carousel/spotlight
   createdAt: { type: Date, default: Date.now }
 });
 
