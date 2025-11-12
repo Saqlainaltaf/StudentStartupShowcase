@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import { API_BASE } from "../config";
 import { Link } from "react-router-dom";
 
 export default function Home() {
@@ -7,7 +8,7 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    axios.get("http://localhost:5000/api/ideas")
+    axios.get(`${API_BASE}/api/ideas`)
       .then(res => setIdeas(res.data))
       .catch(err => console.error("Home load error:", err.message))
       .finally(()=>setLoading(false));
