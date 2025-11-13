@@ -11,6 +11,20 @@ import Directory from "./pages/Directory";
 import ApplicationsAdmin from "./pages/ApplicationsAdmin";
 import Events from "./pages/Events";
 import AdminEvents from "./pages/AdminEvents";
+import NavBar from "./components/NavBar";
+import Footer from "./components/Footer";
+
+function App(){
+  return (
+    <>
+      <NavBar />
+      <div className="container my-4">
+        <Routes> ... your routes ... </Routes>
+      </div>
+      <Footer />
+    </>
+  );
+}
 
 
 
