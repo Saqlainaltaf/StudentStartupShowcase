@@ -7,6 +7,7 @@ import AddIdea from "./pages/AddIdea";
 import Admin from "./pages/Admin";
 import NavBar from "./components/NavBar";
 import StartupProfile from "./pages/StartupProfile";
+import Directory from "./pages/Directory";
 
 function App() {
   return (
@@ -21,6 +22,7 @@ function App() {
           <Route path="/add-idea" element={<AddIdea />} />
           <Route path="/admin" element={<Admin />} />
   <Route path="/startup/:id" element={<StartupProfile />} />
+  <Route path="/directory" element={<Directory />} />
         </Routes>
       </div>
     </Router>
