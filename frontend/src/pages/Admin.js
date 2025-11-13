@@ -1,7 +1,7 @@
 // frontend/src/pages/Admin.js
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import StarterFilters from "../components/StartupFilters"; // ensure path
+import StartupFilters from "../components/StartupFilters"; // <-- correct import
 import { API_BASE } from "../config";
 import { useNavigate } from "react-router-dom";
 
@@ -16,8 +16,6 @@ export default function Admin(){
     try {
       const token = localStorage.getItem("token");
       if (!token) { navigate("/login"); return; }
-      // call search endpoint with admin token to filter; search returns only approved by default, so to include pending,
-      // we fall back to using /api/ideas/all and filter client-side for 'all' view
       const res = await axios.get(`${API_BASE}/api/ideas/all`, { headers: { Authorization: `Bearer ${token}` }});
       setIdeas(res.data);
     } catch (err) {
@@ -27,7 +25,6 @@ export default function Admin(){
 
   useEffect(()=>{ fetchAll(); }, []);
 
-  // client-side filter for admin view
   const filtered = ideas.filter(i => {
     if (filters.category && i.category !== filters.category) return false;
     if (filters.currentStage && i.currentStage !== filters.currentStage) return false;
@@ -41,9 +38,24 @@ export default function Admin(){
   });
 
   async function approve(id){
-    // same approve logic as before
+    try {
+      const token = localStorage.getItem("token");
+      await axios.put(`${API_BASE}/api/ideas/approve/${id}`, {}, { headers: { Authorization: `Bearer ${token}` }});
+      await fetchAll();
+    } catch (err) {
+      alert(err.response?.data?.message || err.message);
+    }
   }
-  async function toggleFeature(id){ /* same as existing */ }
+
+  async function toggleFeature(id){
+    try {
+      const token = localStorage.getItem("token");
+      await axios.put(`${API_BASE}/api/ideas/feature/${id}`, {}, { headers: { Authorization: `Bearer ${token}` }});
+      await fetchAll();
+    } catch (err) {
+      alert(err.response?.data?.message || err.message);
+    }
+  }
 
   return (
     <div>
@@ -59,26 +71,43 @@ export default function Admin(){
             <StartupFilters values={filters} onChange={(next) => setFilters({...filters, ...next})} />
           </div>
         </div>
+
         <div className="col-md-9">
-          {loading ? <p>Loading…</p> :
-            (filtered.length === 0 ? <div className="alert alert-info">No startups match filters.</div> :
-              filtered.map(i => (
-                <div className="card mb-3" key={i._id}>
-                  <div className="card-body d-flex justify-content-between">
-                    <div>
-                      <h5>{i.title} <small className="text-muted">({i.status})</small></h5>
-                      <p className="mb-1">{i.shortDescription}</p>
-                      <small className="text-muted">Stage: {i.currentStage} • Category: {i.category}</small>
-                    </div>
-                    <div className="text-end">
-                      {/* reuse existing approve / feature buttons */}
-                      {/* ... */}
+          {loading ? <p>Loading…</p> : (
+            filtered.length === 0 ? <div className="alert alert-info">No startups match filters.</div> :
+            filtered.map(i => (
+              <div className="card mb-3" key={i._id}>
+                <div className="card-body d-flex justify-content-between">
+                  <div>
+                    <h5>{i.title} <small className="text-muted">({i.status})</small></h5>
+                    <p className="mb-1">{i.shortDescription}</p>
+                    <small className="text-muted">Stage: {i.currentStage} • Category: {i.category}</small>
+                  </div>
+
+                  <div className="text-end">
+                    {i.status === "pending" ? (
+                      <button className="btn btn-sm btn-primary mb-2" onClick={() => approve(i._id)}>Approve</button>
+                    ) : (
+                      <span className="badge bg-success mb-2">Approved</span>
+                    )}
+                    <br />
+                    <button
+                      className={i.featured ? "btn btn-sm btn-outline-warning" : "btn btn-sm btn-outline-secondary"}
+                      onClick={() => toggleFeature(i._1d ?? i._id)}
+                    >
+                      {i.featured ? "Unfeature" : "Feature"}
+                    </button>
+                    <div className="mt-2">
+                      <a href={`/startup/${i._id}`} className="btn btn-sm btn-link">View profile</a>
                     </div>
                   </div>
                 </div>
-              ))
-            )
-          }
+                <div className="mt-3 p-2">
+                  <small className="text-muted">Skills needed: {i.skillsNeeded?.join?.(", ") || "—"}</small>
+                </div>
+              </div>
+            ))
+          )}
         </div>
       </div>
     </div>
