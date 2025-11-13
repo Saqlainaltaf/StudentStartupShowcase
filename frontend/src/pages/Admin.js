@@ -1,7 +1,7 @@
 // frontend/src/pages/Admin.js
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import axios from "axios";
-import StartupFilters from "../components/StartupFilters"; // <-- correct import
+import StartupFilters from "../components/StartupFilters";
 import { API_BASE } from "../config";
 import { useNavigate } from "react-router-dom";
 
@@ -11,19 +11,25 @@ export default function Admin(){
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
-  async function fetchAll(){
+  const fetchAll = useCallback(async () => {
     setLoading(true);
     try {
       const token = localStorage.getItem("token");
       if (!token) { navigate("/login"); return; }
       const res = await axios.get(`${API_BASE}/api/ideas/all`, { headers: { Authorization: `Bearer ${token}` }});
-      setIdeas(res.data);
+      setIdeas(res.data || []);
     } catch (err) {
+      console.error("fetchAll error:", err.response?.data || err.message);
       alert(err.response?.data?.message || err.message);
-    } finally { setLoading(false); }
-  }
+    } finally {
+      setLoading(false);
+    }
+    // fetchAll intentionally has no deps that change during component lifetime
+  }, [navigate]);
 
-  useEffect(()=>{ fetchAll(); }, []);
+  useEffect(() => {
+    fetchAll();
+  }, [fetchAll]);
 
   const filtered = ideas.filter(i => {
     if (filters.category && i.category !== filters.category) return false;
@@ -43,6 +49,7 @@ export default function Admin(){
       await axios.put(`${API_BASE}/api/ideas/approve/${id}`, {}, { headers: { Authorization: `Bearer ${token}` }});
       await fetchAll();
     } catch (err) {
+      console.error("approve error:", err.response?.data || err.message);
       alert(err.response?.data?.message || err.message);
     }
   }
@@ -53,6 +60,7 @@ export default function Admin(){
       await axios.put(`${API_BASE}/api/ideas/feature/${id}`, {}, { headers: { Authorization: `Bearer ${token}` }});
       await fetchAll();
     } catch (err) {
+      console.error("toggleFeature error:", err.response?.data || err.message);
       alert(err.response?.data?.message || err.message);
     }
   }
@@ -93,7 +101,7 @@ export default function Admin(){
                     <br />
                     <button
                       className={i.featured ? "btn btn-sm btn-outline-warning" : "btn btn-sm btn-outline-secondary"}
-                      onClick={() => toggleFeature(i._1d ?? i._id)}
+                      onClick={() => toggleFeature(i._id)}
                     >
                       {i.featured ? "Unfeature" : "Feature"}
                     </button>
