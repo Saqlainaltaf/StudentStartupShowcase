@@ -23,9 +23,20 @@ html,body,#root{
   height:100%;
 }
 
+/* Sticky footer layout */
+.app-shell {
+  min-height:100%;
+  display:flex;
+  flex-direction:column;
+}
+.app-shell > .site-footer {
+  margin-top:auto;
+}
+
 body{
   margin:0;
-  background: linear-gradient(180deg, var(--bg), #f3f6fa 300px);
+  /* Public assets need relative path without leading slash for CSS loader to avoid resolving from src */
+  background: url('bg.jpg') center/cover fixed no-repeat, linear-gradient(180deg, var(--bg), #f3f6fa 300px);
   color:var(--ink);
   font-family: var(--font-sans);
   -webkit-font-smoothing:antialiased;

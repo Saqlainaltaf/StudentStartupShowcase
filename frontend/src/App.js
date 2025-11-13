@@ -21,10 +21,10 @@ import Profile from "./pages/Profile";
 export default function App() {
   return (
     <Router>
-      <NavBar />
-
-      <main className="container my-4">
-        <Routes>
+      <div className="app-shell">
+        <NavBar />
+        <main className="container my-4 flex-grow-1">
+          <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/directory" element={<Directory />} />
           <Route path="/add-idea" element={<AddIdea />} />
@@ -46,10 +46,10 @@ export default function App() {
 
           {/* fallback */}
           <Route path="*" element={<Home />} />
-        </Routes>
-      </main>
-
-      <Footer />
+          </Routes>
+        </main>
+        <Footer />
+      </div>
     </Router>
   );
 }
