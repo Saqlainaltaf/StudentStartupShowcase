@@ -1,5 +1,5 @@
 // frontend/src/pages/StartupProfile.js
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import axios from "axios";
 import { useParams } from "react-router-dom";
 import { API_BASE } from "../config";
@@ -11,14 +11,22 @@ export default function StartupProfile(){
   const [showApply, setShowApply] = useState(false);
   const [appForm, setAppForm] = useState({ message: "", contactEmail: "", contactPhone: "" });
 
-  useEffect(() => {
-    axios.get(`${API_BASE}/api/ideas/${id}`)
-      .then(res => setIdea(res.data))
-      .catch(err => console.error(err))
-      .finally(()=>setLoading(false));
+  const load = useCallback(async () => {
+    setLoading(true);
+    try {
+      const res = await axios.get(`${API_BASE}/api/ideas/${id}`);
+      setIdea(res.data);
+    } catch (err) {
+      console.error("load idea:", err.response?.data || err.message);
+      setIdea(null);
+    } finally {
+      setLoading(false);
+    }
   }, [id]);
 
-  async function submitApplication(e){
+  useEffect(() => { load(); }, [load]);
+
+  const submitApplication = useCallback(async (e) => {
     e.preventDefault();
     try {
       const token = localStorage.getItem("token");
@@ -32,10 +40,10 @@ export default function StartupProfile(){
       setShowApply(false);
       setAppForm({ message: "", contactEmail: "", contactPhone: "" });
     } catch (err) {
-      console.error(err);
+      console.error("submit application:", err.response?.data || err.message);
       alert(err.response?.data?.message || "Application failed.");
     }
-  }
+  }, [id, appForm]);
 
   if (loading) return <p>Loading…</p>;
   if (!idea) return <p>Startup not found or not visible.</p>;
@@ -57,17 +65,31 @@ export default function StartupProfile(){
       <h5>Problem</h5><p>{idea.problemStatement}</p>
       <h5>Solution</h5><p>{idea.solution}</p>
 
+      <h5>Team & Roles</h5><p>{idea.teamMembers}</p>
+
+      <h5>Skills Needed</h5><p>{idea.skillsNeeded?.join?.(", ")}</p>
+
+      <h5>Achievements</h5><p>{idea.achievements}</p>
+
+      <h5>Mentor</h5><p>{idea.mentor}</p>
+
+      <h5>Contact</h5>
+      <p>
+        {idea.contact?.email && <div>Email: {idea.contact.email}</div>}
+        {idea.contact?.phone && <div>Phone: {idea.contact.phone}</div>}
+        {idea.contact?.form && <div><a href={idea.contact.form}>Apply / Contact</a></div>}
+      </p>
+
       <div className="my-3">
-    <a className="btn btn-outline-primary me-2"
-       href={`https://wa.me/916364330786?text=${encodeURIComponent(`Hi, I want to join ${idea.title}. Please connect me.`)}`}
-       target="_blank" rel="noreferrer">
-      Apply via WhatsApp
-    </a>
+        <a className="btn btn-outline-primary me-2"
+           href={`https://wa.me/916364330786?text=${encodeURIComponent(`Hi, I want to join ${idea.title}. Please connect me.`)}`}
+           target="_blank" rel="noreferrer">
+          Apply via WhatsApp
+        </a>
 
-    <button className="btn btn-primary" onClick={()=>setShowApply(true)}>Apply to Join</button>
-  </div>
+        <button className="btn btn-primary" onClick={()=>setShowApply(true)}>Apply to Join</button>
+      </div>
 
-      {/* Apply modal (simple) */}
       {showApply && (
         <div className="modal d-block" tabIndex="-1" role="dialog" style={{ background: "rgba(0,0,0,0.5)" }}>
           <div className="modal-dialog" role="document">
