@@ -14,6 +14,7 @@ export default function AdminEvents(){
       setEvents(res.data);
     } catch (err) { console.error(err); }
   }
+
   useEffect(()=>{ fetchAll(); }, []);
 
   async function create(e){
@@ -27,7 +28,8 @@ export default function AdminEvents(){
   }
 
   async function remove(id){
-    if (!confirm("Delete event?")) return;
+    // use explicit window.confirm to satisfy ESLint rule
+    if (!window.confirm("Delete event?")) return;
     try {
       const token = localStorage.getItem("token");
       await axios.delete(`${API_BASE}/api/events/${id}`, { headers: { Authorization: `Bearer ${token}` }});
