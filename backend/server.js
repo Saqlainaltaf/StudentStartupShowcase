@@ -4,6 +4,9 @@ import mongoose from "mongoose";
 import cors from "cors";
 import dotenv from "dotenv";
 import eventsRoutes from "./routes/events.js";
+import uploadRoutes from "./routes/uploads.js";
+app.use("/api/uploads", uploadRoutes);
+
 
 app.use("/api/events", eventsRoutes);
 
