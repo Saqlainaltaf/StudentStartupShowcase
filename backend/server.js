@@ -8,6 +8,10 @@ import ideaRoutes from "./routes/idea.js";
 import User from "./models/User.js";
 import bcrypt from "bcryptjs";
 import statsRoutes from "./routes/stats.js";
+import applicationRoutes from "./routes/application.js";
+
+app.use("/api/applications", applicationRoutes);
+
 app.use("/api/stats", statsRoutes);
 
 
