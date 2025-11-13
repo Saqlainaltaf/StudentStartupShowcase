@@ -22,23 +22,60 @@ export default function AddIdea(){
     callToAction: "",
     category: ""
   });
-  const navigate = useNavigate();
+  const [file, setFile] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const navigate = useNavigate();
+
+  async function uploadFile() {
+    if (!file) return null;
+    const fd = new FormData();
+    fd.append("file", file);
+    const token = localStorage.getItem("token");
+    const res = await axios.post(`${API_BASE}/api/uploads`, fd, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+        Authorization: `Bearer ${token}`
+      },
+      onUploadProgress: (e) => {
+        if (e.total) setUploadProgress(Math.round((e.loaded * 100) / e.total));
+      }
+    });
+    return res.data; // { url, filename, originalName, size, resource_type }
+  }
 
   async function submit(e){
     e.preventDefault();
     setLoading(true);
     try {
       const token = localStorage.getItem("token");
-      if (!token) return alert("Please login first.");
-      // skillsNeeded: store as array separated by commas
-      const payload = { ...form, skillsNeeded: form.skillsNeeded.split(",").map(s => s.trim()).filter(Boolean) };
+      if (!token) { alert("Please login first."); setLoading(false); return; }
+
+      // If user added a file, upload it first
+      let docMeta = null;
+      if (file) {
+        docMeta = await uploadFile();
+      }
+
+      const payload = {
+        ...form,
+        skillsNeeded: form.skillsNeeded.split(",").map(s => s.trim()).filter(Boolean),
+        supportingDocument: docMeta ? {
+          url: docMeta.url,
+          filename: docMeta.filename,
+          originalName: docMeta.originalName,
+          size: docMeta.size,
+          resource_type: docMeta.resource_type
+        } : undefined
+      };
+
       await axios.post(`${API_BASE}/api/ideas`, payload, { headers: { Authorization: `Bearer ${token}` }});
       alert("Idea submitted — pending admin approval.");
       navigate("/");
     } catch (err) {
-      alert(err.response?.data?.message || err.message);
-    } finally { setLoading(false); }
+      console.error("Submit idea error:", err.response?.data || err.message);
+      alert(err.response?.data?.message || "Submission failed.");
+    } finally { setLoading(false); setUploadProgress(0); }
   }
 
   return (
@@ -67,6 +104,11 @@ export default function AddIdea(){
             <input className="form-control mb-2" placeholder="Logo URL (optional)" value={form.logoUrl} onChange={e=>setForm({...form,logoUrl:e.target.value})} />
             <input className="form-control mb-2" placeholder="Contact email" value={form.contactEmail} onChange={e=>setForm({...form,contactEmail:e.target.value})} />
             <input className="form-control mb-2" placeholder="Contact phone" value={form.contactPhone} onChange={e=>setForm({...form,contactPhone:e.target.value})} />
+
+            <label className="form-label mt-2">Supporting document (PDF, PNG, JPG, DOCX)</label>
+            <input className="form-control mb-2" type="file" accept=".pdf,.png,.jpg,.jpeg,.doc,.docx" onChange={e => setFile(e.target.files[0])} />
+            {file && <div className="small text-muted mb-2">Selected: {file.name} • {(file.size/1024).toFixed(0)} KB</div>}
+            {uploadProgress > 0 && <div className="mb-2"><div className="progress"><div className="progress-bar" role="progressbar" style={{width: `${uploadProgress}%`}}>{uploadProgress}%</div></div></div>}
             <div className="d-grid">
               <button className="btn btn-success" disabled={loading}>{loading ? "Submitting…" : "Submit idea"}</button>
             </div>
