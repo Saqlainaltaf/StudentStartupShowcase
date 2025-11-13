@@ -10,6 +10,14 @@ const ideaSchema = new mongoose.Schema({
     phone: String,
     form: String
   },
+  supportingDocument: {
+  url: String,
+  filename: String,
+  originalName: String,
+  size: Number,
+  resource_type: String
+},
+
   shortDescription: String,                                // 1-2 sentence blurb
   problemStatement: String,
   solution: String,
