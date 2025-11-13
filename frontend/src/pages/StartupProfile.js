@@ -58,10 +58,14 @@ export default function StartupProfile(){
       <h5>Solution</h5><p>{idea.solution}</p>
 
       <div className="my-3">
-        <a className="btn btn-outline-primary me-2" href={`https://wa.me/?text=${encodeURIComponent(`I want to join ${idea.title}. Contact: ${user?.email || ''}`)}`} target="_blank" rel="noreferrer">Apply via WhatsApp</a>
+    <a className="btn btn-outline-primary me-2"
+       href={`https://wa.me/916364330786?text=${encodeURIComponent(`Hi, I want to join ${idea.title}. Please connect me.`)}`}
+       target="_blank" rel="noreferrer">
+      Apply via WhatsApp
+    </a>
 
-        <button className="btn btn-primary" onClick={()=>setShowApply(true)}>Apply to Join</button>
-      </div>
+    <button className="btn btn-primary" onClick={()=>setShowApply(true)}>Apply to Join</button>
+  </div>
 
       {/* Apply modal (simple) */}
       {showApply && (
