@@ -3,6 +3,10 @@ import express from "express";
 import mongoose from "mongoose";
 import cors from "cors";
 import dotenv from "dotenv";
+import eventsRoutes from "./routes/events.js";
+
+app.use("/api/events", eventsRoutes);
+
 
 // load env as early as possible
 dotenv.config();
