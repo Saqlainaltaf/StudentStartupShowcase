@@ -48,7 +48,7 @@ export default function Footer() {
         </div>
 
         <div className="text-center mt-3 text-muted" aria-hidden={false}>
-          © {new Date().getFullYear()} Startup Club. All rights reserved.
+          footer @ankith & @saqlain · © {new Date().getFullYear()}
         </div>
       </div>
     </footer>
