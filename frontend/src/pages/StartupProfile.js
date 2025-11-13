@@ -48,8 +48,6 @@ export default function StartupProfile(){
   if (loading) return <p>Loading…</p>;
   if (!idea) return <p>Startup not found or not visible.</p>;
 
-  const user = JSON.parse(localStorage.getItem("user") || "null");
-
   return (
     <div>
       <div className="d-flex align-items-center mb-3">
