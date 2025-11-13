@@ -27,4 +27,16 @@ const ideaSchema = new mongoose.Schema({
   createdAt: { type: Date, default: Date.now }
 });
 
+// after schema definition (below export)
+ideaSchema.index({
+  title: "text",
+  shortDescription: "text",
+  problemStatement: "text",
+  solution: "text",
+  founders: "text",
+  teamMembers: "text",
+  achievements: "text",
+});
+
+
 export default mongoose.model("Idea", ideaSchema);
