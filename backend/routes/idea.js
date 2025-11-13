@@ -86,4 +86,50 @@ router.put("/feature/:id", auth, async (req, res) => {
   }
 });
 
+// GET /api/ideas/search?q=&category=&currentStage=&skill=&page=1&limit=12&sort=latest
+router.get("/search", async (req, res) => {
+  try {
+    const {
+      q, category, currentStage, skill,
+      page = 1, limit = 12, sort = "latest"
+    } = req.query;
+
+    const filter = { status: "approved" };
+
+    if (category) filter.category = category;
+    if (currentStage) filter.currentStage = currentStage;
+    if (skill) filter.skillsNeeded = { $in: [skill] };
+
+    // Text search
+    let query;
+    if (q) {
+      query = { $text: { $search: q }, ...filter };
+    } else {
+      query = filter;
+    }
+
+    // Sort
+    let sortObj = { createdAt: -1 };
+    if (sort === "oldest") sortObj = { createdAt: 1 };
+    if (sort === "title") sortObj = { title: 1 };
+
+    const skip = (Math.max(1, parseInt(page)) - 1) * parseInt(limit);
+
+    const [items, total] = await Promise.all([
+      Idea.find(query)
+        .sort(sortObj)
+        .skip(skip)
+        .limit(parseInt(limit))
+        .select("title shortDescription logoUrl founders currentStage category skillsNeeded createdAt featured")
+        .lean(),
+      Idea.countDocuments(query)
+    ]);
+
+    res.json({ items, total, page: parseInt(page), limit: parseInt(limit) });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+
 export default router;
