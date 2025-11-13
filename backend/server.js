@@ -1,70 +1,57 @@
 // backend/server.js
+import dotenv from "dotenv";
+dotenv.config();
+
 import express from "express";
 import mongoose from "mongoose";
 import cors from "cors";
-import dotenv from "dotenv";
-import eventsRoutes from "./routes/events.js";
-import uploadRoutes from "./routes/uploads.js";
-app.use("/api/uploads", uploadRoutes);
+import bcrypt from "bcryptjs";
 
-
-app.use("/api/events", eventsRoutes);
-
-
-// load env as early as possible
-dotenv.config();
-
-// create app BEFORE using it
+// create app immediately
 const app = express();
-app.use(express.json());
 
-// configure CORS - allow frontend origin(s)
+// basic middlewares
+app.use(express.json({ limit: "10mb" }));
+
 const corsOptions = {
-  origin: [process.env.FRONTEND_ORIGIN || "https://student-startup-showcase.vercel.app", "http://localhost:3000"],
+  origin: process.env.FRONTEND_ORIGIN ? process.env.FRONTEND_ORIGIN.split(",") : ["http://localhost:3000", "https://student-startup-showcase.vercel.app"],
   credentials: true
 };
 app.use(cors(corsOptions));
 
-// Import models and routes AFTER app is created (imports are hoisted, but we keep use() after app init)
+// now import routes and models (static imports are okay; app already defined)
 import authRoutes from "./routes/auth.js";
 import ideaRoutes from "./routes/idea.js";
 import applicationRoutes from "./routes/application.js";
+import uploadRoutes from "./routes/uploads.js";
+import eventsRoutes from "./routes/events.js";
 import statsRoutes from "./routes/stats.js";
 import User from "./models/User.js";
-import bcrypt from "bcryptjs";
 
-// Mount routes
+// mount routes - app is defined so these calls are safe
 app.use("/api/auth", authRoutes);
 app.use("/api/ideas", ideaRoutes);
 app.use("/api/applications", applicationRoutes);
+app.use("/api/uploads", uploadRoutes);
+app.use("/api/events", eventsRoutes);
 app.use("/api/stats", statsRoutes);
 
-// Healthcheck
+// healthcheck
 app.get("/", (req, res) => res.json({ ok: true, time: new Date() }));
 
-// DB + seed + start
-const MONGO_URI = process.env.MONGO_URI || "mongodb://localhost:27017/startupshowcase";
+// DB connect and server start
 const PORT = process.env.PORT || 5000;
+const MONGO_URI = process.env.MONGO_URI || "mongodb://localhost:27017/startupshowcase";
 
 mongoose.connect(MONGO_URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
   serverSelectionTimeoutMS: 10000
 })
-.then(() => {
+.then(async () => {
   console.log("✅ MongoDB connected");
-  return seedAdminIfMissing();
-})
-.then(() => {
-  app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
-})
-.catch((err) => {
-  console.error("❌ MongoDB connection error:", err.message || err);
-  process.exit(1); // exit so Render shows failure clearly
-});
 
-// Seed admin user (email: admin, password: admin) if none exists
-async function seedAdminIfMissing(){
+  // seed admin if missing
   try {
     const existing = await User.findOne({ email: "admin" });
     if (!existing) {
@@ -75,6 +62,15 @@ async function seedAdminIfMissing(){
       console.log("🔑 Admin user already exists.");
     }
   } catch (err) {
-    console.error("Seed admin error:", err.message);
+    console.error("Seed admin error:", err.message || err);
   }
-}
+
+  app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+  });
+})
+.catch((err) => {
+  console.error("❌ MongoDB connection error:", err.message || err);
+  // exit so Render shows the deploy as failed
+  process.exit(1);
+});
