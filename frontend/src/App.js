@@ -9,6 +9,10 @@ import NavBar from "./components/NavBar";
 import StartupProfile from "./pages/StartupProfile";
 import Directory from "./pages/Directory";
 import ApplicationsAdmin from "./pages/ApplicationsAdmin";
+import Events from "./pages/Events";
+import AdminEvents from "./pages/AdminEvents";
+
+
 
 function App() {
   return (
@@ -25,6 +29,8 @@ function App() {
   <Route path="/admin/applications" element={<ApplicationsAdmin />} />
   <Route path="/startup/:id" element={<StartupProfile />} />
   <Route path="/directory" element={<Directory />} />
+<Route path="/events" element={<Events />} />
+<Route path="/admin/events" element={<AdminEvents />} />
         </Routes>
       </div>
     </Router>
