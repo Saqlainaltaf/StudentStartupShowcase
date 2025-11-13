@@ -8,7 +8,8 @@ import { API_BASE } from "../config";
 export default function Home() {
   const [featured, setFeatured] = useState([]);
   const [stats, setStats] = useState({});
-  const [announcements, setAnnouncements] = useState([
+  // keep announcements as read-only constant to avoid unused setter warning
+  const [announcements] = useState([
     { id: 1, text: "Hackathon registrations open — deadline Nov 30" }
   ]);
 
@@ -19,8 +20,8 @@ export default function Home() {
           axios.get(`${API_BASE}/api/ideas/featured`),
           axios.get(`${API_BASE}/api/stats`)
         ]);
-        setFeatured(feat.data);
-        setStats(st.data);
+        setFeatured(feat.data || []);
+        setStats(st.data || {});
       } catch (err) {
         console.error("Home load:", err.message);
       }
@@ -46,13 +47,12 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Announcements */}
+      {/* Announcements & Stats */}
       <div className="container mt-4">
         {announcements.map(a => (
           <div className="alert alert-info" key={a.id}>{a.text}</div>
         ))}
 
-        {/* Stats & Featured */}
         <div className="row align-items-center mb-4">
           <div className="col-md-7">
             <div className="row g-2">
@@ -91,7 +91,6 @@ export default function Home() {
           </div>
         </div>
 
-        {/* CTA */}
         <div className="p-4 rounded bg-light d-flex justify-content-between align-items-center">
           <div>
             <h5 className="mb-1">Ready to get involved?</h5>
