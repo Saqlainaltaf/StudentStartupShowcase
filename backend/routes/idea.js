@@ -4,6 +4,11 @@ import Idea from "../models/Idea.js";
 import auth from "../middleware/auth.js";
 const router = express.Router();
 
+/*
+  NOTE: order matters. Put static routes (search, featured, all, approve, feature)
+  BEFORE the dynamic route (/:id). Otherwise requests like /all will be treated as an id.
+*/
+
 // Create idea (student)
 router.post("/", auth, async (req, res) => {
   try {
@@ -17,7 +22,83 @@ router.post("/", auth, async (req, res) => {
   }
 });
 
-// Public: get approved ideas (optionally category)
+// Search (text search + filters + pagination)
+router.get("/search", async (req, res) => {
+  try {
+    const { q, category, currentStage, skill, page = 1, limit = 12, sort = "latest" } = req.query;
+    const filter = { status: "approved" };
+    if (category) filter.category = category;
+    if (currentStage) filter.currentStage = currentStage;
+    if (skill) filter.skillsNeeded = { $in: [skill] };
+
+    let query;
+    if (q) query = { $text: { $search: q }, ...filter };
+    else query = filter;
+
+    let sortObj = { createdAt: -1 };
+    if (sort === "oldest") sortObj = { createdAt: 1 };
+    if (sort === "title") sortObj = { title: 1 };
+
+    const skip = (Math.max(1, parseInt(page)) - 1) * parseInt(limit);
+
+    const [items, total] = await Promise.all([
+      Idea.find(query).sort(sortObj).skip(skip).limit(parseInt(limit)).select("title shortDescription logoUrl founders currentStage category skillsNeeded createdAt featured").lean(),
+      Idea.countDocuments(query)
+    ]);
+
+    res.json({ items, total, page: parseInt(page), limit: parseInt(limit) });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// Featured startups
+router.get("/featured", async (req, res) => {
+  try {
+    const featured = await Idea.find({ status: "approved", featured: true }).limit(10).populate("createdBy", "name");
+    res.json(featured);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// Admin: get all startups (requires auth)
+router.get("/all", auth, async (req, res) => {
+  try {
+    if (req.user.role !== "admin") return res.status(403).json({ message: "Forbidden" });
+    const ideas = await Idea.find().populate("createdBy", "name email");
+    res.json(ideas);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// Admin approve
+router.put("/approve/:id", auth, async (req, res) => {
+  try {
+    if (req.user.role !== "admin") return res.status(403).json({ message: "Forbidden" });
+    const idea = await Idea.findByIdAndUpdate(req.params.id, { status: "approved" }, { new: true });
+    res.json(idea);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// Admin toggle featured
+router.put("/feature/:id", auth, async (req, res) => {
+  try {
+    if (req.user.role !== "admin") return res.status(403).json({ message: "Forbidden" });
+    const idea = await Idea.findById(req.params.id);
+    if (!idea) return res.status(404).json({ message: "Not found" });
+    idea.featured = !idea.featured;
+    await idea.save();
+    res.json(idea);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// Public: get approved ideas (optionally by category)
 router.get("/", async (req, res) => {
   try {
     const filter = { status: "approved" };
@@ -29,107 +110,19 @@ router.get("/", async (req, res) => {
   }
 });
 
-// Public: featured startups
-router.get("/featured", async (req, res) => {
-  try {
-    const featured = await Idea.find({ status: "approved", featured: true }).limit(10).populate("createdBy", "name");
-    res.json(featured);
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
-});
-
-// Public: get single startup profile
+// Public: get single startup profile by id
+// This must be the LAST route so '/all' and '/search' routes don't get caught here.
 router.get("/:id", async (req, res) => {
   try {
     const idea = await Idea.findById(req.params.id).populate("createdBy", "name email");
     if (!idea) return res.status(404).json({ message: "Not found" });
-    // only return if approved or requester is admin/owner (simple logic)
-    if (idea.status !== "approved") {
-      return res.status(403).json({ message: "Not visible" });
-    }
+    if (idea.status !== "approved") return res.status(403).json({ message: "Not visible" });
     res.json(idea);
   } catch (err) {
+    // If invalid ObjectId, return 400 with helpful message instead of stack trace
+    if (err.name === "CastError") return res.status(400).json({ message: "Invalid id format" });
     res.status(500).json({ message: err.message });
   }
 });
-
-// Admin-only: list all (already had this)
-router.get("/all", auth, async (req, res) => {
-  if (req.user.role !== "admin") return res.status(403).json({ message: "Forbidden" });
-  const ideas = await Idea.find().populate("createdBy", "name email");
-  res.json(ideas);
-});
-
-// Admin approve (already had this)
-router.put("/approve/:id", auth, async (req, res) => {
-  if (req.user.role !== "admin") return res.status(403).json({ message: "Forbidden" });
-  try {
-    const idea = await Idea.findByIdAndUpdate(req.params.id, { status: "approved" }, { new: true });
-    res.json(idea);
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
-});
-
-// Admin toggle featured
-router.put("/feature/:id", auth, async (req, res) => {
-  if (req.user.role !== "admin") return res.status(403).json({ message: "Forbidden" });
-  try {
-    const idea = await Idea.findById(req.params.id);
-    if (!idea) return res.status(404).json({ message: "Not found" });
-    idea.featured = !idea.featured;
-    await idea.save();
-    res.json(idea);
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
-});
-
-// GET /api/ideas/search?q=&category=&currentStage=&skill=&page=1&limit=12&sort=latest
-router.get("/search", async (req, res) => {
-  try {
-    const {
-      q, category, currentStage, skill,
-      page = 1, limit = 12, sort = "latest"
-    } = req.query;
-
-    const filter = { status: "approved" };
-
-    if (category) filter.category = category;
-    if (currentStage) filter.currentStage = currentStage;
-    if (skill) filter.skillsNeeded = { $in: [skill] };
-
-    // Text search
-    let query;
-    if (q) {
-      query = { $text: { $search: q }, ...filter };
-    } else {
-      query = filter;
-    }
-
-    // Sort
-    let sortObj = { createdAt: -1 };
-    if (sort === "oldest") sortObj = { createdAt: 1 };
-    if (sort === "title") sortObj = { title: 1 };
-
-    const skip = (Math.max(1, parseInt(page)) - 1) * parseInt(limit);
-
-    const [items, total] = await Promise.all([
-      Idea.find(query)
-        .sort(sortObj)
-        .skip(skip)
-        .limit(parseInt(limit))
-        .select("title shortDescription logoUrl founders currentStage category skillsNeeded createdAt featured")
-        .lean(),
-      Idea.countDocuments(query)
-    ]);
-
-    res.json({ items, total, page: parseInt(page), limit: parseInt(limit) });
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
-});
-
 
 export default router;
