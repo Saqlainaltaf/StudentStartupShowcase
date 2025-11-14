@@ -7,6 +7,8 @@ import mongoose from "mongoose";
 import cors from "cors";
 import bcrypt from "bcryptjs";
 import adminUsersRoutes from "./routes/adminUsers.js";
+import { requireAuth, requireAdmin } from "../middleware/auth.js";
+
 // create app immediately
 const app = express();
 
