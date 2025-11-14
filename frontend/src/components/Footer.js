@@ -3,9 +3,9 @@ import React from "react";
 import { Link } from "react-router-dom";
 
 const COLORS = {
-  bg: "#0B3D91",
-  light: "#EAF2FF",
-  accent: "#0FA958"
+  bg: "#0B1320",        // very dark charcoal
+  light: "#E6EEF8",     // pale, readable text
+  accent: "#0FA958"     // green CTA
 };
 
 export default function Footer() {
@@ -14,14 +14,14 @@ export default function Footer() {
       <div className="container">
         <div className="row gy-4">
           <div className="col-md-4">
-            <h5 style={{ color: "#fff", marginBottom: 8 }}>Startup Club – Garden City University</h5>
+            <h5 style={{ color: COLORS.light, marginBottom: 8 }}>Startup Club – Garden City University</h5>
             <p style={{ color: COLORS.light, marginBottom: 0, fontSize: 14 }}>
               Empowering student innovation through collaboration, mentorship and real-world execution.
             </p>
           </div>
 
           <div className="col-md-3">
-            <h6 style={{ color: "#fff", marginBottom: 12 }}>Explore</h6>
+            <h6 style={{ color: COLORS.light, marginBottom: 12 }}>Explore</h6>
             <ul className="list-unstyled small" style={{ lineHeight: 2 }}>
               <li><Link to="/" style={{ color: COLORS.light, textDecoration: "none" }}>Home</Link></li>
               <li><Link to="/directory" style={{ color: COLORS.light, textDecoration: "none" }}>Startups</Link></li>
@@ -31,7 +31,7 @@ export default function Footer() {
           </div>
 
           <div className="col-md-5">
-            <h6 style={{ color: "#fff", marginBottom: 12 }}>Contact Us</h6>
+            <h6 style={{ color: COLORS.light, marginBottom: 12 }}>Contact Us</h6>
 
             <p style={{ color: COLORS.light, marginBottom: 6 }}>
               <strong>Phone:</strong><br />
