@@ -6,6 +6,9 @@ dotenv.config();
 
 const JWT_SECRET = process.env.JWT_SECRET || "yourSecret";
 
+/**
+ * requireAuth - verifies JWT, attaches req.user (without password)
+ */
 export async function requireAuth(req, res, next) {
   try {
     const auth = req.headers.authorization || "";
@@ -21,8 +24,19 @@ export async function requireAuth(req, res, next) {
   }
 }
 
+/**
+ * requireAdmin - require authenticated user with role === "admin"
+ */
 export function requireAdmin(req, res, next) {
   if (!req.user) return res.status(401).json({ message: "Unauthorized" });
   if (req.user.role !== "admin") return res.status(403).json({ message: "Forbidden — admin only" });
   return next();
 }
+
+/**
+ * Also provide a default export so older imports like:
+ *   import auth from "../middleware/auth.js";
+ * continue to work.
+ */
+const auth = { requireAuth, requireAdmin };
+export default auth;
