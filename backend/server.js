@@ -7,9 +7,6 @@ import mongoose from "mongoose";
 import cors from "cors";
 import bcrypt from "bcryptjs";
 
-// NOTE: middleware lives in ./middleware relative to this file
-import { requireAuth, requireAdmin } from "./middleware/auth.js";
-
 import authRoutes from "./routes/auth.js";
 import ideaRoutes from "./routes/idea.js";
 import applicationRoutes from "./routes/application.js";
@@ -18,62 +15,59 @@ import eventsRoutes from "./routes/events.js";
 import statsRoutes from "./routes/stats.js";
 import adminUsersRoutes from "./routes/adminUsers.js";
 
+import { requireAuth, requireAdmin } from "./middleware/auth.js";
 import User from "./models/User.js";
 
 const app = express();
 
-// middlewares
 app.use(express.json({ limit: "10mb" }));
 
-const corsOptions = {
-  origin: process.env.FRONTEND_ORIGIN ? process.env.FRONTEND_ORIGIN.split(",") : ["http://localhost:3000", "https://student-startup-showcase.vercel.app"],
-  credentials: true
-};
-app.use(cors(corsOptions));
+app.use(
+  cors({
+    origin: [
+      "http://localhost:3000",
+      "https://student-startup-showcase.vercel.app"
+    ],
+    credentials: true
+  })
+);
 
-// mount routes
+// MOUNT ROUTES
 app.use("/api/auth", authRoutes);
 app.use("/api/ideas", ideaRoutes);
 app.use("/api/applications", applicationRoutes);
 app.use("/api/uploads", uploadRoutes);
 app.use("/api/events", eventsRoutes);
 app.use("/api/stats", statsRoutes);
-app.use("/api/admin", adminUsersRoutes); // admin routes
+app.use("/api/admin", adminUsersRoutes);
 
-// simple healthcheck
 app.get("/", (req, res) => res.json({ ok: true, time: new Date() }));
 
-// DB connect + seed admin
+// START DB + SERVER
+const MONGO_URI = process.env.MONGO_URI;
 const PORT = process.env.PORT || 5000;
-const MONGO_URI = process.env.MONGO_URI || "mongodb://localhost:27017/startupshowcase";
 
-mongoose.connect(MONGO_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-  serverSelectionTimeoutMS: 10000
-})
-.then(async () => {
-  console.log("✅ MongoDB connected");
+mongoose
+  .connect(MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
+  .then(async () => {
+    console.log("MongoDB connected");
 
-  // seed admin if missing
-  try {
+    // SEED ADMIN
     const existing = await User.findOne({ email: "admin" });
     if (!existing) {
       const hashed = await bcrypt.hash("admin", 10);
-      await User.create({ name: "Admin", email: "admin", password: hashed, role: "admin" });
-      console.log("🔐 Admin user created: email='admin' password='admin'");
-    } else {
-      console.log("🔑 Admin user already exists.");
+      await User.create({
+        name: "Admin",
+        email: "admin",
+        password: hashed,
+        role: "admin"
+      });
+      console.log("Admin created (admin/admin)");
     }
-  } catch (err) {
-    console.error("Seed admin error:", err.message || err);
-  }
 
-  app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
+    app.listen(PORT, () => console.log("Server listening on", PORT));
+  })
+  .catch((err) => {
+    console.error(err);
+    process.exit(1);
   });
-})
-.catch((err) => {
-  console.error("❌ MongoDB connection error:", err.message || err);
-  process.exit(1);
-});
