@@ -8,7 +8,7 @@ import User from "../models/User.js";
 const router = express.Router();
 
 // Create application (student must be logged in)
-router.post("/", auth, async (req, res) => {
+router.post("/", requireAuth, async (req, res) => {
   try {
     const { ideaId, message, contact } = req.body;
     // basic validation
