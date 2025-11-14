@@ -1,6 +1,6 @@
 // backend/routes/application.js
 import express from "express";
-import auth from "../middleware/auth.js";
+import { requireAuth } from "../middleware/auth.js";
 import Application from "../models/Application.js";
 import Idea from "../models/Idea.js";
 import User from "../models/User.js";
