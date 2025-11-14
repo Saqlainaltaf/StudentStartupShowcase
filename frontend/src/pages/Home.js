@@ -37,10 +37,13 @@ export default function Home() {
             <h1 className="display-5 fw-bold">Discover. Collaborate. Build Startups.</h1>
             <p className="lead text-muted">A student-run platform to showcase startup ideas, find teammates, mentors and early adopters.</p>
             <div className="mt-3">
-              <Link to="/directory" className="btn btn-primary btn-lg">See Startups</Link>
+              <Link to="/directory" className="btn btn-primary btn-lg me-2">See Startups</Link>
+              <Link to="/register" className="btn btn-outline-primary btn-lg">Join the Club</Link>
             </div>
           </div>
-          
+          <div className="d-none d-md-block">
+            <img src="/hero-graphic.png" alt="hero" style={{ width: 320 }} />
+          </div>
         </div>
       </section>
 
