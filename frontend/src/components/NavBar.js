@@ -5,17 +5,18 @@ import axios from "axios";
 import { API_BASE } from "../config";
 
 /*
- Colors:
-  primaryBg = #0B3D91 (deep navy)
-  primaryLight = #EAF2FF (light accent)
-  accent = #0FA958 (green for CTA)
+ Updated colors:
+  nav/footer bg = #0B1320 (very dark charcoal)
+  link/text = #FFFFFF (white)
+  subtle text = #cfd8e3 (soft grey-blue)
+  accent CTA = #0FA958 (green)
 */
 
 const STYLES = {
-  primaryBg: "#0B3D91",
-  primaryLight: "#EAF2FF",
+  primaryBg: "#0B1320",
+  primaryLight: "#cfd8e3",
   accent: "#0FA958",
-  linkColor: "#F7FBFF" // white-ish for links
+  linkColor: "#FFFFFF"
 };
 
 function initialsFromName(name) {
@@ -73,8 +74,8 @@ export default function NavBar() {
     if (!u) return (
       <div style={{
         width:size, height:size, borderRadius:6,
-        background:"#f0f2f6", display:"inline-flex", alignItems:"center", justifyContent:"center",
-        color:"#0B3D91", fontWeight:700, fontSize:12
+        background:"#e9eef6", display:"inline-flex", alignItems:"center", justifyContent:"center",
+        color:"#0B1320", fontWeight:700, fontSize:12
       }}>{initialsFromName(null)}</div>
     );
     if (u.avatar) {
@@ -83,8 +84,8 @@ export default function NavBar() {
     return (
       <div style={{
         width:size, height:size, borderRadius:6,
-        background:"#f0f2f6", display:"inline-flex", alignItems:"center", justifyContent:"center",
-        color:"#0B3D91", fontWeight:700, fontSize:12
+        background:"#e9eef6", display:"inline-flex", alignItems:"center", justifyContent:"center",
+        color:"#0B1320", fontWeight:700, fontSize:12
       }}>
         {initialsFromName(u.name || u.email)}
       </div>
@@ -106,7 +107,7 @@ export default function NavBar() {
           <img src="/logo192.png" alt="logo" style={{ width:40, height:40, marginRight:10, borderRadius:8, background:"#fff" }} />
           <div style={{ lineHeight: 1 }}>
             <div style={{ fontWeight: 700, color: STYLES.primaryLight, fontSize:18 }}>Startup Club</div>
-            <small style={{ color: "rgba(234,242,255,0.9)" }}>Idea Showcase</small>
+            <small style={{ color: "rgba(207,216,227,0.9)" }}>Idea Showcase</small>
           </div>
         </Link>
 
@@ -118,7 +119,7 @@ export default function NavBar() {
           aria-controls="mainNav"
           aria-expanded="false"
           aria-label="Toggle navigation"
-          style={{ borderColor: "rgba(234,242,255,0.12)" }}
+          style={{ borderColor: "rgba(255,255,255,0.12)" }}
         >
           <span className="navbar-toggler-icon" style={{ filter: "invert(1) brightness(2)" }} />
         </button>
@@ -140,7 +141,12 @@ export default function NavBar() {
                   placeholder="Search startups, skills, founders..."
                   value={query}
                   onChange={e => setQuery(e.target.value)}
-                  style={{ borderRadius: 8, border: "1px solid rgba(255,255,255,0.12)" }}
+                  style={{
+                    borderRadius: 8,
+                    border: "1px solid rgba(255,255,255,0.10)",
+                    background: "rgba(255,255,255,0.03)",
+                    color: STYLES.linkColor
+                  }}
                 />
               </form>
             </li>
@@ -171,15 +177,22 @@ export default function NavBar() {
                     <Avatar u={user} />
                     <span className="d-none d-md-inline" style={{ color: STYLES.linkColor, marginLeft:6 }}>{user.name ? user.name.split(" ")[0] : user.email}</span>
                   </button>
-                  <ul className="dropdown-menu dropdown-menu-end" aria-labelledby="userMenu" style={{ minWidth: 200 }}>
+
+                  {/* ensure dropdown menu is white with dark text for readability */}
+                  <ul className="dropdown-menu dropdown-menu-end" aria-labelledby="userMenu" style={{ minWidth: 200, background: "#ffffff", color: "#0b1320" }}>
                     <li><Link className="dropdown-item" to="/profile">Profile</Link></li>
                     <li><Link className="dropdown-item" to="/my-applications">My Applications</Link></li>
+
+                    {/* Admin group - removed Add Event option per request */}
                     {user.role === "admin" && <>
                       <li><hr className="dropdown-divider" /></li>
                       <li><Link className="dropdown-item" to="/admin">Admin Dashboard</Link></li>
+                      <li><Link className="dropdown-item" to="/admin/startups">Manage Startups</Link></li>
                       <li><Link className="dropdown-item" to="/admin/events">Manage Events</Link></li>
-                      <li><Link className="dropdown-item" to="/admin/events/new">Add Event</Link></li>
+                      <li><Link className="dropdown-item" to="/admin/applications">Applications</Link></li>
+                      <li><Link className="dropdown-item" to="/admin/reports">Reports</Link></li>
                     </>}
+
                     <li><hr className="dropdown-divider" /></li>
                     <li><button className="dropdown-item" onClick={handleLogout}>Logout</button></li>
                   </ul>
