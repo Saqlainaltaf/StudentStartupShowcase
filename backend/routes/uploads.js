@@ -3,7 +3,8 @@ import express from "express";
 import multer from "multer";
 import streamifier from "streamifier";
 import { v2 as cloudinary } from "cloudinary";
-import auth from "../middleware/auth.js";
+import { requireAuth, requireAdmin } from "../middleware/auth.js";
+
 
 const router = express.Router();
 
