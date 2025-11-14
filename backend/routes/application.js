@@ -31,7 +31,7 @@ router.post("/", requireAuth, async (req, res) => {
 });
 
 // Get current user's applications
-router.get("/me", auth, async (req, res) => {
+router.get("/me", requireAuth, async (req, res) => {
   try {
     const items = await Application.find({ userId: req.user.id }).populate("ideaId", "title").sort({ createdAt: -1 });
     res.json(items);
@@ -41,14 +41,14 @@ router.get("/me", auth, async (req, res) => {
 });
 
 // Admin: list all applications
-router.get("/all", auth, async (req, res) => {
+router.get("/all", requireAuth, async (req, res) => {
   if (req.user.role !== "admin") return res.status(403).json({ message: "Forbidden" });
   const items = await Application.find().populate("ideaId", "title").populate("userId", "name email").sort({ createdAt: -1 });
   res.json(items);
 });
 
 // Admin: change status (accept/reject) and optionally assign role
-router.put("/:id", auth, async (req, res) => {
+router.put("/:id", requireAuth, async (req, res) => {
   if (req.user.role !== "admin") return res.status(403).json({ message: "Forbidden" });
   try {
     const { status, assignedToStartupRole } = req.body;
