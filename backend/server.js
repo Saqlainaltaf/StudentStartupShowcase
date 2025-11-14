@@ -6,7 +6,7 @@ import express from "express";
 import mongoose from "mongoose";
 import cors from "cors";
 import bcrypt from "bcryptjs";
-
+import adminUsersRoutes from "./routes/adminUsers.js";
 // create app immediately
 const app = express();
 
