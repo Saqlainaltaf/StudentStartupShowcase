@@ -6,33 +6,66 @@ import Footer from "./components/Footer";
 
 // pages
 import Home from "./pages/Home";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
+import Dashboard from "./pages/Dashboard";
 import Directory from "./pages/Directory";
 import AddIdea from "./pages/AddIdea";
+import Admin from "./pages/Admin";
+import NavBar from "./components/NavBar";
 import StartupProfile from "./pages/StartupProfile";
+import Directory from "./pages/Directory";
+import ApplicationsAdmin from "./pages/ApplicationsAdmin";
 import Events from "./pages/Events";
 import Admin from "./pages/Admin";
 import AdminEvents from "./pages/AdminEvents";
+import NavBar from "./components/NavBar";
+import Footer from "./components/Footer";
+
+function App(){
+  return (
+    <>
+      <NavBar />
+      <div className="container my-4">
+        <Routes> ... your routes ... </Routes>
+      </div>
+      <Footer />
+    </>
+  );
+}
+
+
 import ApplicationsAdmin from "./pages/ApplicationsAdmin";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import MyApplications from "./pages/MyApplications";
 import Profile from "./pages/Profile";
 
+function App() {
 export default function App() {
-  return (
-    <Router>
-      <div className="app-shell">
-        <NavBar />
-        <main className="container my-4 flex-grow-1">
-          <Routes>
-          <Route path="/" element={<Home />} />
+return (
+<Router>
+<NavBar />
+      <div className="container mt-4">
+
+      <main className="container my-4">
+<Routes>
+<Route path="/" element={<Home />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/directory" element={<Directory />} />
-          <Route path="/add-idea" element={<AddIdea />} />
+<Route path="/add-idea" element={<AddIdea />} />
           <Route path="/startup/:id" element={<StartupProfile />} />
           <Route path="/events" element={<Events />} />
 
           {/* Admin */}
-          <Route path="/admin" element={<Admin />} />
+<Route path="/admin" element={<Admin />} />
+  <Route path="/admin/applications" element={<ApplicationsAdmin />} />
+  <Route path="/startup/:id" element={<StartupProfile />} />
+  <Route path="/directory" element={<Directory />} />
+<Route path="/events" element={<Events />} />
+<Route path="/admin/events" element={<AdminEvents />} />
           <Route path="/admin/events" element={<AdminEvents />} />
           <Route path="/admin/applications" element={<ApplicationsAdmin />} />
 
@@ -46,10 +79,14 @@ export default function App() {
 
           {/* fallback */}
           <Route path="*" element={<Home />} />
-          </Routes>
-        </main>
-        <Footer />
+</Routes>
       </div>
-    </Router>
-  );
+      </main>
+
+      <Footer />
+</Router>
+);
 }
+
+export default App;
+//redeploying
