@@ -1,6 +1,6 @@
 // backend/routes/events.js
 import express from "express";
-import auth from "../middleware/auth.js";
+import { requireAuth, requireAdmin } from "../middleware/auth.js";
 import Event from "../models/Event.js";
 
 const router = express.Router();
