@@ -119,3 +119,10 @@ footer {
 .btn-success:hover {
   background: #0b8448 !important;
 }
+
+/* Add to frontend/src/index.css at the end */
+.site-footer-override {
+  background: #0B1320 !important;
+  color: #E6EEF8 !important;
+}
+.site-footer-override a { color: #E6EEF8 !important; text-decoration: none; }
