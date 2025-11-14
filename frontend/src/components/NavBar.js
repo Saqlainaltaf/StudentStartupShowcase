@@ -190,7 +190,7 @@ export default function NavBar() {
                       <li><Link className="dropdown-item" to="/admin/startups">Manage Startups</Link></li>
                       <li><Link className="dropdown-item" to="/admin/events">Manage Events</Link></li>
                       <li><Link className="dropdown-item" to="/admin/applications">Applications</Link></li>
-                      <li><Link className="dropdown-item" to="/admin/reports">Reports</Link></li>
+                
                     </>}
 
                     <li><hr className="dropdown-divider" /></li>
