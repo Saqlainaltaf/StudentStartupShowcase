@@ -4,6 +4,20 @@ import { Link, NavLink, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { API_BASE } from "../config";
 
+/*
+ Colors:
+  primaryBg = #0B3D91 (deep navy)
+  primaryLight = #EAF2FF (light accent)
+  accent = #0FA958 (green for CTA)
+*/
+
+const STYLES = {
+  primaryBg: "#0B3D91",
+  primaryLight: "#EAF2FF",
+  accent: "#0FA958",
+  linkColor: "#F7FBFF" // white-ish for links
+};
+
 function initialsFromName(name) {
   if (!name) return "U";
   return name.split(" ").map(n => n[0]).slice(0,2).join("").toUpperCase();
@@ -11,14 +25,10 @@ function initialsFromName(name) {
 
 export default function NavBar() {
   const [user, setUser] = useState(null);
-  const [summary, setSummary] = useState({ pendingApplications: 0, pendingIdeas: 0, featuredCount: 0 });
-  const [loadingSummary, setLoadingSummary] = useState(false);
   const [query, setQuery] = useState("");
-  const [searchOpen, setSearchOpen] = useState(false);
   const navigate = useNavigate();
   const debounceRef = useRef(null);
 
-  // Read user from localStorage
   const readUser = useCallback(() => {
     try {
       const raw = localStorage.getItem("user");
@@ -28,52 +38,18 @@ export default function NavBar() {
     }
   }, []);
 
-  // Fetch admin summary (counts). Only when user.role === 'admin'
-  const fetchSummary = useCallback(async () => {
-    try {
-      if (!user || user.role !== "admin") return;
-      const token = localStorage.getItem("token");
-      if (!token) return;
-      setLoadingSummary(true);
-      const res = await axios.get(`${API_BASE}/api/admin/summary`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      setSummary(res.data || { pendingApplications: 0, pendingIdeas: 0, featuredCount: 0 });
-    } catch (err) {
-      // fail silently — summary is non-critical
-      console.warn("Admin summary load failed:", err?.response?.data || err?.message || err);
-    } finally {
-      setLoadingSummary(false);
-    }
-  }, [user]);
-
   useEffect(() => {
     readUser();
-
-    // storage listener for other tabs
     function onStorage(e) {
       if (e.key === "user" || e.key === "token") readUser();
     }
     window.addEventListener("storage", onStorage);
-
-    // custom same-tab event
-    function onLocalLogin() { readUser(); }
-    window.addEventListener("local-login", onLocalLogin);
-
+    window.addEventListener("local-login", readUser);
     return () => {
       window.removeEventListener("storage", onStorage);
-      window.removeEventListener("local-login", onLocalLogin);
+      window.removeEventListener("local-login", readUser);
     };
   }, [readUser]);
-
-  // Refresh summary when user becomes admin
-  useEffect(() => {
-    fetchSummary();
-    // refresh periodically while admin is active (e.g., every 60s)
-    let t;
-    if (user?.role === "admin") t = setInterval(fetchSummary, 60000);
-    return () => clearInterval(t);
-  }, [user, fetchSummary]);
 
   function handleLogout() {
     localStorage.removeItem("token");
@@ -83,177 +59,138 @@ export default function NavBar() {
     navigate("/");
   }
 
-  // Search handling with debounce: navigate on Enter or when debounce triggers
   useEffect(() => {
     if (debounceRef.current) clearTimeout(debounceRef.current);
     debounceRef.current = setTimeout(() => {
       if (query && query.length >= 2) {
         navigate(`/directory?q=${encodeURIComponent(query)}`);
-        setSearchOpen(false);
       }
-    }, 700);
-    return () => {
-      if (debounceRef.current) clearTimeout(debounceRef.current);
-    };
+    }, 600);
+    return () => { if (debounceRef.current) clearTimeout(debounceRef.current); };
   }, [query, navigate]);
 
-  function onSearchSubmit(e) {
-    e.preventDefault();
-    if (!query) return;
-    navigate(`/directory?q=${encodeURIComponent(query)}`);
-    setSearchOpen(false);
-  }
-
-  // Render avatar or initials
-  const Avatar = ({ u, size = 32 }) => {
-    if (!u) return <div style={{width:size,height:size,borderRadius:8,background:"#e9ecef",display:"inline-flex",alignItems:"center",justifyContent:"center",fontSize:12}}>{initialsFromName(null)}</div>;
+  const Avatar = ({ u, size = 28 }) => {
+    if (!u) return (
+      <div style={{
+        width:size, height:size, borderRadius:6,
+        background:"#f0f2f6", display:"inline-flex", alignItems:"center", justifyContent:"center",
+        color:"#0B3D91", fontWeight:700, fontSize:12
+      }}>{initialsFromName(null)}</div>
+    );
     if (u.avatar) {
-      return <img src={u.avatar} alt={u.name || u.email || "avatar"} style={{width:size,height:size,objectFit:"cover",borderRadius:8}}/>;
+      return <img src={u.avatar} alt={u.name||u.email||"avatar"} style={{width:size,height:size,objectFit:"cover",borderRadius:6}}/>;
     }
-    return <div style={{width:size,height:size,borderRadius:8,background:"#e9ecef",display:"inline-flex",alignItems:"center",justifyContent:"center",fontSize:12,fontWeight:600}}>{initialsFromName(u.name || u.email)}</div>;
+    return (
+      <div style={{
+        width:size, height:size, borderRadius:6,
+        background:"#f0f2f6", display:"inline-flex", alignItems:"center", justifyContent:"center",
+        color:"#0B3D91", fontWeight:700, fontSize:12
+      }}>
+        {initialsFromName(u.name || u.email)}
+      </div>
+    );
   };
 
   return (
-    <nav className="navbar navbar-expand-md site-nav" role="navigation" aria-label="Main">
+    <nav
+      className="navbar navbar-expand-md"
+      style={{
+        background: STYLES.primaryBg,
+        color: STYLES.linkColor,
+        borderBottom: "1px solid rgba(255,255,255,0.04)",
+        minHeight: 64
+      }}
+    >
       <div className="container">
-        <Link className="navbar-brand d-flex align-items-center" to="/" aria-label="Homepage">
-          <img src="/logo192.png" alt="logo" style={{ width: 40, height: 40, marginRight: 10, borderRadius: 8 }} />
+        <Link to="/" className="navbar-brand d-flex align-items-center" style={{ color: STYLES.linkColor, textDecoration: "none" }}>
+          <img src="/logo192.png" alt="logo" style={{ width:40, height:40, marginRight:10, borderRadius:8, background:"#fff" }} />
           <div style={{ lineHeight: 1 }}>
-            <div style={{ fontWeight: 700 }}>Startup Club</div>
-            <small className="text-muted">Idea Showcase</small>
+            <div style={{ fontWeight: 700, color: STYLES.primaryLight, fontSize:18 }}>Startup Club</div>
+            <small style={{ color: "rgba(234,242,255,0.9)" }}>Idea Showcase</small>
           </div>
         </Link>
 
-        <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav" aria-controls="mainNav" aria-expanded="false" aria-label="Toggle navigation">
-          <span className="navbar-toggler-icon" />
+        <button
+          className="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#mainNav"
+          aria-controls="mainNav"
+          aria-expanded="false"
+          aria-label="Toggle navigation"
+          style={{ borderColor: "rgba(234,242,255,0.12)" }}
+        >
+          <span className="navbar-toggler-icon" style={{ filter: "invert(1) brightness(2)" }} />
         </button>
 
         <div className="collapse navbar-collapse" id="mainNav">
-          <ul className="navbar-nav ms-auto align-items-md-center">
-
+          <ul className="navbar-nav ms-auto align-items-center" style={{ gap: 10 }}>
             <li className="nav-item">
-              <NavLink className="nav-link" to="/directory">Startups</NavLink>
+              <NavLink to="/directory" className="nav-link" style={{ color: STYLES.linkColor }}>Startups</NavLink>
             </li>
 
             <li className="nav-item">
-              <NavLink className="nav-link" to="/events">Events</NavLink>
+              <NavLink to="/events" className="nav-link" style={{ color: STYLES.linkColor }}>Events</NavLink>
             </li>
 
-            {/* Inline search (small) */}
-            <li className="nav-item mx-2" style={{minWidth: 200}}>
-              <form onSubmit={onSearchSubmit} className="d-flex" role="search" aria-label="Search startups">
+            <li className="nav-item mx-2" style={{ minWidth: 220 }}>
+              <form onSubmit={e => { e.preventDefault(); if (query) navigate(`/directory?q=${encodeURIComponent(query)}`); }}>
                 <input
                   className="form-control form-control-sm"
                   placeholder="Search startups, skills, founders..."
-                  aria-label="Search"
                   value={query}
-                  onChange={(e) => setQuery(e.target.value)}
+                  onChange={e => setQuery(e.target.value)}
+                  style={{ borderRadius: 8, border: "1px solid rgba(255,255,255,0.12)" }}
                 />
               </form>
             </li>
 
-            {/* Admin Add Event button */}
-            {user?.role === "admin" && (
-              <li className="nav-item ms-2 d-none d-md-block">
-                <Link className="btn btn-sm btn-outline-primary" to="/admin/events" aria-label="Manage events">
-                  Add / Manage Events
-                </Link>
-              </li>
-            )}
-
-            {/* Submit Idea */}
-            <li className="nav-item ms-3 d-none d-md-block">
-              <Link className="btn btn-sm btn-accent" to="/add-idea">Submit Idea</Link>
+            <li className="nav-item ms-2 d-none d-md-block">
+              <Link to="/add-idea" className="btn" style={{ background: STYLES.accent, color: "#fff", borderRadius: 8, padding: "6px 12px", fontWeight:600 }}>
+                Submit Idea
+              </Link>
             </li>
 
-            {/* Auth buttons */}
             {!user && (
               <>
-                <li className="nav-item ms-2"><NavLink className="nav-link" to="/login">Login</NavLink></li>
-                <li className="nav-item"><NavLink className="nav-link" to="/register">Register</NavLink></li>
+                <li className="nav-item"><NavLink to="/login" className="nav-link" style={{ color: STYLES.linkColor }}>Login</NavLink></li>
+                <li className="nav-item"><NavLink to="/register" className="nav-link" style={{ color: STYLES.linkColor }}>Register</NavLink></li>
               </>
             )}
 
-            {/* Notifications & User menu */}
             {user && (
               <>
-                <li className="nav-item dropdown ms-3 me-1">
-                  <button
-                    className="btn btn-sm btn-ghost position-relative"
-                    id="notifMenu"
-                    data-bs-toggle="dropdown"
-                    aria-expanded="false"
-                    aria-label="Notifications"
-                  >
-                    <i className="bi bi-bell" aria-hidden="true" />
-                    {/* show badge if admin and there are pending items */}
-                    {user.role === "admin" && (summary.pendingApplications > 0 || summary.pendingIdeas > 0) && (
-                      <span className="badge bg-danger text-white position-absolute" style={{ top: -6, right: -6, fontSize: 10 }}>
-                        { (summary.pendingApplications || 0) + (summary.pendingIdeas || 0) }
-                      </span>
-                    )}
-                  </button>
-                  <ul className="dropdown-menu dropdown-menu-end p-2" aria-labelledby="notifMenu" style={{ minWidth: 260 }}>
-                    <li className="small text-muted px-2">Notifications</li>
-                    <li><hr className="dropdown-divider" /></li>
-                    <li className="px-2">
-                      <Link className="d-flex justify-content-between text-decoration-none" to="/admin/applications">
-                        <div>Pending applications</div>
-                        <div className="badge bg-secondary">{summary.pendingApplications ?? 0}</div>
-                      </Link>
-                    </li>
-                    <li className="px-2">
-                      <Link className="d-flex justify-content-between text-decoration-none" to="/admin">
-                        <div>Pending startups</div>
-                        <div className="badge bg-secondary">{summary.pendingIdeas ?? 0}</div>
-                      </Link>
-                    </li>
-                    <li><hr className="dropdown-divider" /></li>
-                    <li className="px-2 small text-muted">Last updated: {loadingSummary ? "…" : "now"}</li>
-                  </ul>
-                </li>
-
-                <li className="nav-item dropdown ms-2">
+                <li className="nav-item dropdown ms-3">
                   <button
                     className="btn btn-sm btn-ghost dropdown-toggle d-flex align-items-center"
                     id="userMenu"
                     data-bs-toggle="dropdown"
                     aria-expanded="false"
-                    aria-label="User menu"
-                    style={{ gap: 8 }}
+                    style={{ gap:8, color: STYLES.linkColor, background: "transparent", border: "none" }}
                   >
-                    <Avatar u={user} size={28} />
-                    <span className="d-none d-md-inline">{user.name ? user.name.split(" ")[0] : (user.email || "Account")}</span>
+                    <Avatar u={user} />
+                    <span className="d-none d-md-inline" style={{ color: STYLES.linkColor, marginLeft:6 }}>{user.name ? user.name.split(" ")[0] : user.email}</span>
                   </button>
-
-                  <ul className="dropdown-menu dropdown-menu-end" aria-labelledby="userMenu">
+                  <ul className="dropdown-menu dropdown-menu-end" aria-labelledby="userMenu" style={{ minWidth: 200 }}>
                     <li><Link className="dropdown-item" to="/profile">Profile</Link></li>
                     <li><Link className="dropdown-item" to="/my-applications">My Applications</Link></li>
-
-                    {/* Admin group */}
-                    {user?.role === "admin" && (
-                      <>
-                        <li><hr className="dropdown-divider" /></li>
-                        <li><Link className="dropdown-item" to="/admin">Admin Dashboard</Link></li>
-                        <li><Link className="dropdown-item" to="/admin/startups">Manage Startups</Link></li>
-                        <li><Link className="dropdown-item" to="/admin/events">Manage Events</Link></li>
-                        <li><Link className="dropdown-item" to="/admin/events/new">Add Event</Link></li>
-                        <li><Link className="dropdown-item" to="/admin/applications">Applications</Link></li>
-                        <li><Link className="dropdown-item" to="/admin/reports">Reports</Link></li>
-                      </>
-                    )}
-
+                    {user.role === "admin" && <>
+                      <li><hr className="dropdown-divider" /></li>
+                      <li><Link className="dropdown-item" to="/admin">Admin Dashboard</Link></li>
+                      <li><Link className="dropdown-item" to="/admin/events">Manage Events</Link></li>
+                      <li><Link className="dropdown-item" to="/admin/events/new">Add Event</Link></li>
+                    </>}
                     <li><hr className="dropdown-divider" /></li>
-                    <li><button className="dropdown-item" type="button" onClick={handleLogout}>Logout</button></li>
+                    <li><button className="dropdown-item" onClick={handleLogout}>Logout</button></li>
                   </ul>
                 </li>
               </>
             )}
 
-            {/* Mobile Submit Idea button */}
             <li className="nav-item d-md-none mt-2">
-              <Link className="btn btn-sm btn-accent w-100" to="/add-idea">Submit Idea</Link>
+              <Link to="/add-idea" className="btn" style={{ background: STYLES.accent, color:"#fff", borderRadius:8, width:"100%" }}>Submit Idea</Link>
             </li>
+
           </ul>
         </div>
       </div>
