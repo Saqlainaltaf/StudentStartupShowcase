@@ -3,6 +3,11 @@ import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import NavBar from "./components/NavBar";
 import Footer from "./components/Footer";
+// example route in App.js (where your routes are defined)
+import AdminUsers from "./pages/AdminUsers";
+// ...
+
+
 
 // pages
 import Home from "./pages/Home";
@@ -35,6 +40,7 @@ export default function App() {
           <Route path="/admin" element={<Admin />} />
           <Route path="/admin/events" element={<AdminEvents />} />
           <Route path="/admin/applications" element={<ApplicationsAdmin />} />
+          <Route path="/admin/users" element={<AdminUsers />} />
 
           {/* Auth */}
           <Route path="/login" element={<Login />} />
