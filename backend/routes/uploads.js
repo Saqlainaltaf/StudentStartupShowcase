@@ -36,7 +36,7 @@ const streamUpload = (buffer, folder = "startup_supporting_docs") =>
   });
 
 // POST /api/uploads (authenticated)
-router.post("/", auth, upload.single("file"), async (req, res) => {
+router.post("/", requireAuth, upload.single("file"), async (req, res) => {
   try {
     if (!req.file) return res.status(400).json({ message: "No file uploaded" });
 
