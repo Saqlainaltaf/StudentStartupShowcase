@@ -14,7 +14,7 @@ router.get("/", async (req, res) => {
 });
 
 // Admin: create event
-router.post("/", auth, async (req, res) => {
+router.post("/", requireAuth, async (req, res) => {
   if (req.user.role !== "admin") return res.status(403).json({ message: "Forbidden" });
   try {
     const e = await Event.create({ ...req.body, createdBy: req.user.id });
@@ -23,7 +23,7 @@ router.post("/", auth, async (req, res) => {
 });
 
 // Admin: update
-router.put("/:id", auth, async (req, res) => {
+router.put("/:id", requireAuth, async (req, res) => {
   if (req.user.role !== "admin") return res.status(403).json({ message: "Forbidden" });
   try {
     const e = await Event.findByIdAndUpdate(req.params.id, req.body, { new: true });
@@ -32,7 +32,7 @@ router.put("/:id", auth, async (req, res) => {
 });
 
 // Admin: delete
-router.delete("/:id", auth, async (req, res) => {
+router.delete("/:id", requireAuth, async (req, res) => {
   if (req.user.role !== "admin") return res.status(403).json({ message: "Forbidden" });
   try {
     await Event.findByIdAndDelete(req.params.id);
