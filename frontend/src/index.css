@@ -1,128 +1,276 @@
-/* ===== GLOBAL COLOR SYSTEM ===== */
+/* frontend/src/index.css
+   Reworked global theme + accessibility fixes for navbar & footer,
+   improved contrast, dropdown and form styling, and consistent tokens.
+*/
 
-:root {
-  --primary: #0055ff;
-  --primary-dark: #003bb3;
-  --accent: #0fa958;
+/* ---------- DESIGN TOKENS ---------- */
+:root{
+  /* Palette (kept familiar but improved contrast) */
+  --bg: #f6f8fb;            /* page background */
+  --surface: #ffffff;       /* cards / surfaces */
+  --muted: #6c757d;         /* muted text */
+  --ink: #0f1720;           /* primary text (dark but not pure black) */
 
-  --bg-light: #f7f9fc;
-  --card-bg: #ffffff;
-  --text-muted: #6c757d;
+  --primary: #0B3D91;       /* deep university blue (nav/footer) */
+  --primary-2: #0A56D6;     /* brighter blue for accents */
+  --accent: #0FA958;        /* CTA green */
+  --accent-soft: rgba(15,169,88,0.12);
 
-  --hero-bg: linear-gradient(150deg, #ffffff 0%, #eef3ff 100%);
+  --card-radius: 14px;
+  --radius: 10px;
+
+  --glass: rgba(255,255,255,0.6);
+
+  --font-sans: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  --font-serif: "Playfair Display", Georgia, serif;
 }
 
-/* ===== BODY ===== */
+/* ---------- BASE ---------- */
+html, body, #root { height: 100%; }
 body {
-  background: var(--bg-light) !important;
-  color: #111;
-  font-family: "Inter", sans-serif;
-}
-
-/* ===== NAVBAR ===== */
-.site-nav {
-  background: #ffffffee;
-  backdrop-filter: blur(10px);
-  border-bottom: 1px solid #e9ecef;
-}
-
-/* All nav links */
-.site-nav .nav-link {
-  color: #333 !important;
-  font-weight: 500;
-  transition: 0.2s ease;
-}
-
-.site-nav .nav-link:hover,
-.site-nav .nav-link.active {
-  color: var(--primary) !important;
-}
-
-/* Brand styling */
-.navbar-brand div div:first-child {
-  color: var(--primary-dark) !important;
-}
-
-/* Buttons */
-.btn-accent {
-  background: var(--primary);
-  color: #fff !important;
-  border-radius: 8px;
-  padding: 6px 14px;
-  font-weight: 600;
-  border: none;
-  transition: background 0.2s ease;
-}
-
-.btn-accent:hover {
-  background: var(--primary-dark);
-}
-
-/* Outlined buttons */
-.btn-outline-primary {
-  border-color: var(--primary);
-  color: var(--primary);
-}
-
-.btn-outline-primary:hover {
-  background: var(--primary);
-  color: #fff;
-}
-
-/* Hero section background */
-.hero-section {
-  background: var(--hero-bg) !important;
-  padding-top: 80px;
-  padding-bottom: 80px;
-  border-radius: 0 0 40px 40px;
+  margin: 0;
+  background: linear-gradient(180deg, var(--bg), #f3f6fa 360px);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  line-height: 1.6;
+  font-size: 16px;
 }
 
 /* Headings */
-h1, h2, h3, h4, h5 {
-  color: #1a1a1a;
-  letter-spacing: -0.02em;
+h1, h2, h3, h4 {
+  font-family: var(--font-serif);
+  color: var(--ink);
+  margin-top: 0;
+  margin-bottom: 0.5rem;
+  line-height: 1.15;
 }
 
-/* Cards */
+/* Links */
+a { color: var(--primary); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+/* Utility text */
+.text-muted { color: var(--muted) !important; }
+
+/* ---------- CARDS & SURFACES ---------- */
 .card {
-  background: var(--card-bg) !important;
-  border: 1px solid #e4e7eb !important;
-  border-radius: 16px !important;
-  box-shadow: 0 3px 12px rgba(0,0,0,0.04) !important;
+  background: var(--surface);
+  border-radius: var(--card-radius);
+  border: none;
+  box-shadow: 0 8px 28px rgba(16,24,40,0.06);
 }
 
-/* Footer */
-footer {
-  background: #fff !important;
+/* Hero card */
+.hero {
+  padding: 4.5rem 0;
+}
+.hero-card {
+  background: linear-gradient(180deg, rgba(255,255,255,0.98), rgba(255,255,255,0.95));
+  border-radius: 18px;
+  padding: 2rem;
+  box-shadow: 0 12px 40px rgba(11,61,145,0.06);
 }
 
-/* Featured Startup sidebar */
-.featured-startups {
-  border-left: 3px solid var(--primary);
-  padding-left: 16px;
+/* ---------- NAVBAR (high-contrast, accessible) ---------- */
+.site-nav {
+  background: var(--primary);
+  color: #fff;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  box-shadow: 0 6px 28px rgba(11,61,145,0.06);
+  backdrop-filter: blur(6px);
 }
 
-/* Announcement banner */
+/* Brand */
+.site-nav .navbar-brand { color: #fff; }
+.site-nav .navbar-brand img { background: #fff; border-radius: 8px; }
+
+/* Nav links */
+.site-nav .nav-link {
+  color: rgba(255,255,255,0.95);
+  font-weight: 600;
+  padding: 0.45rem 0.6rem;
+}
+.site-nav .nav-link:hover,
+.site-nav .nav-link.active {
+  color: var(--primary-2) !important;
+  background: rgba(255,255,255,0.04);
+  border-radius: 8px;
+}
+
+/* Buttons in navbar */
+.site-nav .btn {
+  border-radius: 10px;
+  padding: 6px 12px;
+  font-weight: 600;
+  box-shadow: 0 10px 26px rgba(11,61,145,0.06);
+}
+.site-nav .btn-accent {
+  background: linear-gradient(90deg, var(--accent), var(--primary-2));
+  color: #fff;
+  border: none;
+}
+.site-nav .btn-ghost {
+  background: transparent;
+  border: 1px solid rgba(255,255,255,0.08);
+  color: #fff;
+}
+
+/* Search input in navbar */
+.site-nav .form-control {
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.06);
+  color: #fff;
+  padding: 6px 10px;
+  border-radius: 8px;
+}
+.site-nav .form-control::placeholder { color: rgba(255,255,255,0.65); }
+.site-nav .form-control:focus {
+  outline: none;
+  box-shadow: 0 6px 18px rgba(11,61,145,0.12);
+  border-color: rgba(255,255,255,0.18);
+}
+
+/* Navbar toggler (mobile) - invert icon for contrast */
+.navbar-toggler-icon { filter: invert(1) brightness(3); }
+
+/* Dropdowns - ensure readable white menus */
+.dropdown-menu {
+  background: var(--surface) !important;
+  color: var(--ink) !important;
+  border-radius: 10px;
+  box-shadow: 0 8px 28px rgba(11,61,145,0.08);
+  min-width: 220px;
+}
+.dropdown-menu .dropdown-item {
+  color: var(--ink) !important;
+}
+.dropdown-menu .dropdown-item:hover {
+  background: rgba(11,61,145,0.04);
+}
+
+/* Badge */
+.badge-notif {
+  background: var(--accent);
+  color: #fff;
+  font-size: 0.7rem;
+  padding: 2px 6px;
+  border-radius: 999px;
+  box-shadow: 0 6px 18px rgba(11,61,145,0.08);
+}
+
+/* ---------- FOOTER (dark, legible) ---------- */
+.site-footer {
+  background: var(--primary);
+  color: rgba(234,242,255,0.95);
+  padding: 2.2rem 0;
+  margin-top: 3rem;
+}
+.site-footer a { color: rgba(234,242,255,0.95); text-decoration: none; }
+.site-footer a:hover { color: #fff; text-decoration: underline; }
+.site-footer h5, .site-footer h6 { color: #fff; }
+
+/* Footer small divider */
+.site-footer hr {
+  border-color: rgba(255,255,255,0.06);
+}
+
+/* Small print */
+.site-footer .small { color: rgba(234,242,255,0.9); }
+
+/* ---------- FORMS & INPUTS ---------- */
+input, textarea, select {
+  font-family: var(--font-sans);
+  color: var(--ink);
+}
+.form-control {
+  border-radius: 10px;
+  border: 1px solid rgba(15,23,42,0.06);
+  padding: 0.5rem 0.75rem;
+  background: #fff;
+}
+.form-control:focus {
+  outline: none;
+  box-shadow: 0 8px 30px rgba(13,110,253,0.08);
+  border-color: var(--primary);
+}
+
+/* ---------- BUTTONS (global) ---------- */
+.btn {
+  border-radius: 10px;
+  padding: 0.55rem 1rem;
+  font-weight: 700;
+  transition: transform .12s ease, box-shadow .12s ease;
+}
+.btn:active { transform: translateY(1px); }
+.btn:focus { outline: 3px solid rgba(11,61,145,0.12); outline-offset: 2px; }
+
+/* Primary accent */
+.btn-accent {
+  background: linear-gradient(90deg, var(--accent), var(--primary-2));
+  border: none;
+  color: white;
+  box-shadow: 0 10px 30px rgba(11,61,145,0.12);
+}
+
+/* Secondary ghost */
+.btn-ghost {
+  background: transparent;
+  border: 1px solid rgba(15,23,42,0.06);
+  color: var(--ink);
+}
+
+/* Success/green */
+.btn-success {
+  background: var(--accent);
+  color: #fff;
+  border: none;
+}
+
+/* ---------- SMALL UI ELEMENTS ---------- */
+.startup-logo { width:72px; height:72px; object-fit:cover; border-radius:12px; }
+
+/* Featured accent */
+.featured-startups { border-left: 3px solid var(--primary); padding-left: 16px; }
+
+/* Announcement */
 .announcement-banner {
-  background: #e8f1ff;
+  background: rgba(10,85,214,0.06);
   border-left: 4px solid var(--primary);
   padding: 10px 16px;
   border-radius: 12px;
 }
 
-/* Submit Idea (green) */
-.btn-success, .btn-success:visited {
-  background: var(--accent) !important;
-  border: none !important;
+/* ---------- ACCESSIBILITY ---------- */
+:focus { outline: none; }
+a:focus, button:focus, input:focus {
+  outline: 3px solid rgba(11,61,145,0.12);
+  outline-offset: 2px;
 }
 
-.btn-success:hover {
-  background: #0b8448 !important;
+/* ---------- RESPONSIVE / TWEAKS ---------- */
+@media (max-width: 992px){
+  .site-nav .form-control { display: none; } /* hide inline search on small screens */
+}
+@media (max-width: 768px){
+  .hero { padding: 2.5rem 0; }
+  .hero-card { padding: 1rem; border-radius: 12px; }
 }
 
-/* Add to frontend/src/index.css at the end */
-.site-footer-override {
-  background: #0B1320 !important;
-  color: #E6EEF8 !important;
+/* ---------- POLISH: subtle elevation ---------- */
+.card-elevated {
+  border-radius: 16px;
+  box-shadow: 0 20px 50px rgba(11,61,145,0.06);
 }
-.site-footer-override a { color: #E6EEF8 !important; text-decoration: none; }
+
+/* small helper */
+.lead { color: rgba(17,24,39,0.8); font-size:1.05rem; }
+.small-muted { color: var(--muted); }
+
+/* ---------- OVERRIDES: ensure footer & nav are applied if other CSS conflicts ---------- */
+.site-nav { background: var(--primary) !important; color: #fff !important; }
+.site-footer { background: var(--primary) !important; color: rgba(234,242,255,0.95) !important; }
+.dropdown-menu { background: var(--surface) !important; color: var(--ink) !important; }
+
+/* END */
