@@ -1,13 +1,13 @@
 // backend/middleware/auth.js
 import jwt from "jsonwebtoken";
-import User from "../models/User.js"; // adjust path if needed
+import User from "../models/User.js";
 import dotenv from "dotenv";
 dotenv.config();
 
 const JWT_SECRET = process.env.JWT_SECRET || "yourSecret";
 
 /**
- * requireAuth - verifies JWT, attaches req.user (without password)
+ * verify JWT, attach req.user (safe)
  */
 export async function requireAuth(req, res, next) {
   try {
@@ -15,17 +15,23 @@ export async function requireAuth(req, res, next) {
     if (!auth.startsWith("Bearer ")) return res.status(401).json({ message: "Unauthorized" });
     const token = auth.split(" ")[1];
     const payload = jwt.verify(token, JWT_SECRET);
+
+    // payload should contain user id
+    if (!payload?.id) return res.status(401).json({ message: "Invalid token payload" });
+
     const user = await User.findById(payload.id).select("-password");
     if (!user) return res.status(401).json({ message: "Unauthorized" });
+
     req.user = user;
     return next();
   } catch (err) {
+    // for debugging, keep message minimal in production
     return res.status(401).json({ message: "Invalid token", error: err.message });
   }
 }
 
 /**
- * requireAdmin - require authenticated user with role === "admin"
+ * only allow admin users
  */
 export function requireAdmin(req, res, next) {
   if (!req.user) return res.status(401).json({ message: "Unauthorized" });
@@ -34,8 +40,7 @@ export function requireAdmin(req, res, next) {
 }
 
 /**
- * Also provide a default export so older imports like:
- *   import auth from "../middleware/auth.js";
- * continue to work.
+ * Provide default export too (so old imports keep working)
  */
-export default { requireAuth, requireAdmin };
+const auth = { requireAuth, requireAdmin };
+export default auth;
