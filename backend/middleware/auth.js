@@ -38,5 +38,4 @@ export function requireAdmin(req, res, next) {
  *   import auth from "../middleware/auth.js";
  * continue to work.
  */
-const auth = { requireAuth, requireAdmin };
-export default auth;
+export default { requireAuth, requireAdmin };
