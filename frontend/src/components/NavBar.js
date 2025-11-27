@@ -4,28 +4,15 @@ import { Link, NavLink, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { API_BASE } from "../config";
 
-/*
- Updated colors:
-  nav/footer bg = #0B1320 (very dark charcoal)
-  link/text = #FFFFFF (white)
-  subtle text = #cfd8e3 (soft grey-blue)
-  accent CTA = #0FA958 (green)
-*/
-
-const STYLES = {
-  primaryBg: "#0B1320",
-  primaryLight: "#cfd8e3",
-  accent: "#0FA958",
-  linkColor: "#FFFFFF"
-};
-
 function initialsFromName(name) {
   if (!name) return "U";
-  return name.split(" ").map(n => n[0]).slice(0,2).join("").toUpperCase();
+  return name.split(" ").map(n => n[0]).slice(0, 2).join("").toUpperCase();
 }
 
 export default function NavBar() {
   const [user, setUser] = useState(null);
+  const [summary, setSummary] = useState({ pendingApplications: 0, pendingIdeas: 0, featuredCount: 0 });
+  const [loadingSummary, setLoadingSummary] = useState(false);
   const [query, setQuery] = useState("");
   const navigate = useNavigate();
   const debounceRef = useRef(null);
@@ -39,18 +26,46 @@ export default function NavBar() {
     }
   }, []);
 
+  const fetchSummary = useCallback(async () => {
+    try {
+      if (!user || user.role !== "admin") return;
+      const token = localStorage.getItem("token");
+      if (!token) return;
+      setLoadingSummary(true);
+      const res = await axios.get(`${API_BASE}/api/admin/summary`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setSummary(res.data || { pendingApplications: 0, pendingIdeas: 0, featuredCount: 0 });
+    } catch (err) {
+      console.warn("Admin summary load failed:", err?.response?.data || err?.message || err);
+    } finally {
+      setLoadingSummary(false);
+    }
+  }, [user]);
+
   useEffect(() => {
     readUser();
+
     function onStorage(e) {
       if (e.key === "user" || e.key === "token") readUser();
     }
     window.addEventListener("storage", onStorage);
-    window.addEventListener("local-login", readUser);
+
+    function onLocalLogin() { readUser(); }
+    window.addEventListener("local-login", onLocalLogin);
+
     return () => {
       window.removeEventListener("storage", onStorage);
-      window.removeEventListener("local-login", readUser);
+      window.removeEventListener("local-login", onLocalLogin);
     };
   }, [readUser]);
+
+  useEffect(() => {
+    fetchSummary();
+    let t;
+    if (user?.role === "admin") t = setInterval(fetchSummary, 60000);
+    return () => { if (t) clearInterval(t); };
+  }, [user, fetchSummary]);
 
   function handleLogout() {
     localStorage.removeItem("token");
@@ -66,48 +81,77 @@ export default function NavBar() {
       if (query && query.length >= 2) {
         navigate(`/directory?q=${encodeURIComponent(query)}`);
       }
-    }, 600);
-    return () => { if (debounceRef.current) clearTimeout(debounceRef.current); };
+    }, 700);
+    return () => {
+      if (debounceRef.current) clearTimeout(debounceRef.current);
+    };
   }, [query, navigate]);
 
+  function onSearchSubmit(e) {
+    e.preventDefault();
+    if (!query) return;
+    navigate(`/directory?q=${encodeURIComponent(query)}`);
+  }
+
   const Avatar = ({ u, size = 28 }) => {
-    if (!u) return (
-      <div style={{
-        width:size, height:size, borderRadius:6,
-        background:"#e9eef6", display:"inline-flex", alignItems:"center", justifyContent:"center",
-        color:"#0B1320", fontWeight:700, fontSize:12
-      }}>{initialsFromName(null)}</div>
-    );
+    if (!u) {
+      return (
+        <div
+          style={{
+            width: size,
+            height: size,
+            borderRadius: 8,
+            background: "#e9ecef",
+            display: "inline-flex",
+            alignItems: "center",
+            justifyContent: "center",
+            fontSize: 12,
+          }}
+        >
+          {initialsFromName(null)}
+        </div>
+      );
+    }
     if (u.avatar) {
-      return <img src={u.avatar} alt={u.name||u.email||"avatar"} style={{width:size,height:size,objectFit:"cover",borderRadius:6}}/>;
+      return (
+        <img
+          src={u.avatar}
+          alt={u.name || u.email || "avatar"}
+          style={{ width: size, height: size, objectFit: "cover", borderRadius: 8 }}
+        />
+      );
     }
     return (
-      <div style={{
-        width:size, height:size, borderRadius:6,
-        background:"#e9eef6", display:"inline-flex", alignItems:"center", justifyContent:"center",
-        color:"#0B1320", fontWeight:700, fontSize:12
-      }}>
+      <div
+        style={{
+          width: size,
+          height: size,
+          borderRadius: 8,
+          background: "#e9ecef",
+          display: "inline-flex",
+          alignItems: "center",
+          justifyContent: "center",
+          fontSize: 12,
+          fontWeight: 600,
+        }}
+      >
         {initialsFromName(u.name || u.email)}
       </div>
     );
   };
 
   return (
-    <nav
-      className="navbar navbar-expand-md"
-      style={{
-        background: STYLES.primaryBg,
-        color: STYLES.linkColor,
-        borderBottom: "1px solid rgba(255,255,255,0.04)",
-        minHeight: 64
-      }}
-    >
+    <nav className="navbar navbar-expand-md site-nav" role="navigation" aria-label="Main">
       <div className="container">
-        <Link to="/" className="navbar-brand d-flex align-items-center" style={{ color: STYLES.linkColor, textDecoration: "none" }}>
-          <img src="/logo192.png" alt="logo" style={{ width:40, height:40, marginRight:10, borderRadius:8, background:"#fff" }} />
+        <Link className="navbar-brand d-flex align-items-center" to="/" aria-label="GCUIF Home">
+          <img
+            src="/logo192.png"
+            alt="GCUIF logo"
+            style={{ width: 40, height: 40, marginRight: 10, borderRadius: 8, background: "#fff" }}
+          />
           <div style={{ lineHeight: 1 }}>
-            <div style={{ fontWeight: 700, color: STYLES.primaryLight, fontSize:18 }}>Startup Club</div>
-            <small style={{ color: "rgba(207,216,227,0.9)" }}>Idea Showcase</small>
+            <div style={{ fontWeight: 700 }}>GCUIF</div>
+            <small className="text-muted">Garden City Univ. Incubation Foundation</small>
           </div>
         </Link>
 
@@ -119,89 +163,154 @@ export default function NavBar() {
           aria-controls="mainNav"
           aria-expanded="false"
           aria-label="Toggle navigation"
-          style={{ borderColor: "rgba(255,255,255,0.12)" }}
         >
-          <span className="navbar-toggler-icon" style={{ filter: "invert(1) brightness(2)" }} />
+          <span className="navbar-toggler-icon" />
         </button>
 
         <div className="collapse navbar-collapse" id="mainNav">
-          <ul className="navbar-nav ms-auto align-items-center" style={{ gap: 10 }}>
+          <ul className="navbar-nav ms-auto align-items-md-center">
+
             <li className="nav-item">
-              <NavLink to="/directory" className="nav-link" style={{ color: STYLES.linkColor }}>Startups</NavLink>
+              <NavLink className="nav-link" to="/">Home</NavLink>
             </li>
 
             <li className="nav-item">
-              <NavLink to="/events" className="nav-link" style={{ color: STYLES.linkColor }}>Events</NavLink>
+              <a className="nav-link" href="#programs">Programs</a>
             </li>
 
-            <li className="nav-item mx-2" style={{ minWidth: 220 }}>
-              <form onSubmit={e => { e.preventDefault(); if (query) navigate(`/directory?q=${encodeURIComponent(query)}`); }}>
+            <li className="nav-item">
+              <NavLink className="nav-link" to="/gcuel">Entrepreneurship Lab</NavLink>
+            </li>
+
+            <li className="nav-item">
+              <NavLink className="nav-link" to="/directory">Startups</NavLink>
+            </li>
+
+            <li className="nav-item">
+              <NavLink className="nav-link" to="/events">Events</NavLink>
+            </li>
+
+            {/* Search bar */}
+            <li className="nav-item mx-2 d-none d-lg-block" style={{ minWidth: 220 }}>
+              <form onSubmit={onSearchSubmit} className="d-flex" role="search" aria-label="Search startups">
                 <input
                   className="form-control form-control-sm"
                   placeholder="Search startups, skills, founders..."
+                  aria-label="Search"
                   value={query}
-                  onChange={e => setQuery(e.target.value)}
-                  style={{
-                    borderRadius: 8,
-                    border: "1px solid rgba(255,255,255,0.10)",
-                    background: "rgba(255,255,255,0.03)",
-                    color: STYLES.linkColor
-                  }}
+                  onChange={(e) => setQuery(e.target.value)}
                 />
               </form>
             </li>
 
+            {/* Submit Idea */}
             <li className="nav-item ms-2 d-none d-md-block">
-              <Link to="/add-idea" className="btn" style={{ background: STYLES.accent, color: "#fff", borderRadius: 8, padding: "6px 12px", fontWeight:600 }}>
-                Submit Idea
-              </Link>
+              <Link className="btn btn-sm btn-accent" to="/add-idea">Submit Idea</Link>
             </li>
 
+            {/* Auth buttons */}
             {!user && (
               <>
-                <li className="nav-item"><NavLink to="/login" className="nav-link" style={{ color: STYLES.linkColor }}>Login</NavLink></li>
-                <li className="nav-item"><NavLink to="/register" className="nav-link" style={{ color: STYLES.linkColor }}>Register</NavLink></li>
+                <li className="nav-item ms-2">
+                  <NavLink className="nav-link" to="/login">Login</NavLink>
+                </li>
+                <li className="nav-item">
+                  <NavLink className="nav-link" to="/register">Register</NavLink>
+                </li>
               </>
             )}
 
+            {/* User + Admin dropdowns */}
             {user && (
               <>
-                <li className="nav-item dropdown ms-3">
+                {/* Notifications for admin */}
+                {user.role === "admin" && (
+                  <li className="nav-item dropdown ms-3 me-1">
+                    <button
+                      className="btn btn-sm btn-ghost position-relative"
+                      id="notifMenu"
+                      data-bs-toggle="dropdown"
+                      aria-expanded="false"
+                      aria-label="Notifications"
+                    >
+                      <i className="bi bi-bell" aria-hidden="true" />
+                      {(summary.pendingApplications > 0 || summary.pendingIdeas > 0) && (
+                        <span
+                          className="badge bg-danger text-white position-absolute"
+                          style={{ top: -6, right: -6, fontSize: 10 }}
+                        >
+                          {(summary.pendingApplications || 0) + (summary.pendingIdeas || 0)}
+                        </span>
+                      )}
+                    </button>
+                    <ul className="dropdown-menu dropdown-menu-end p-2" aria-labelledby="notifMenu" style={{ minWidth: 260 }}>
+                      <li className="small text-muted px-2">Notifications</li>
+                      <li><hr className="dropdown-divider" /></li>
+                      <li className="px-2">
+                        <Link className="d-flex justify-content-between text-decoration-none" to="/admin/applications">
+                          <div>Pending applications</div>
+                          <div className="badge bg-secondary">{summary.pendingApplications ?? 0}</div>
+                        </Link>
+                      </li>
+                      <li className="px-2">
+                        <Link className="d-flex justify-content-between text-decoration-none" to="/admin">
+                          <div>Pending startups</div>
+                          <div className="badge bg-secondary">{summary.pendingIdeas ?? 0}</div>
+                        </Link>
+                      </li>
+                      <li><hr className="dropdown-divider" /></li>
+                      <li className="px-2 small text-muted">
+                        Last updated: {loadingSummary ? "…" : "now"}
+                      </li>
+                    </ul>
+                  </li>
+                )}
+
+                {/* User menu */}
+                <li className="nav-item dropdown ms-2">
                   <button
                     className="btn btn-sm btn-ghost dropdown-toggle d-flex align-items-center"
                     id="userMenu"
                     data-bs-toggle="dropdown"
                     aria-expanded="false"
-                    style={{ gap:8, color: STYLES.linkColor, background: "transparent", border: "none" }}
+                    aria-label="User menu"
+                    style={{ gap: 8 }}
                   >
-                    <Avatar u={user} />
-                    <span className="d-none d-md-inline" style={{ color: STYLES.linkColor, marginLeft:6 }}>{user.name ? user.name.split(" ")[0] : user.email}</span>
+                    <Avatar u={user} size={28} />
+                    <span className="d-none d-md-inline">
+                      {user.name ? user.name.split(" ")[0] : user.email || "Account"}
+                    </span>
                   </button>
-
-                  {/* ensure dropdown menu is white with dark text for readability */}
-                  <ul className="dropdown-menu dropdown-menu-end" aria-labelledby="userMenu" style={{ minWidth: 200, background: "#ffffff", color: "#0b1320" }}>
+                  <ul className="dropdown-menu dropdown-menu-end" aria-labelledby="userMenu">
                     <li><Link className="dropdown-item" to="/profile">Profile</Link></li>
                     <li><Link className="dropdown-item" to="/my-applications">My Applications</Link></li>
 
-                    {/* Admin group - removed Add Event option per request */}
-                    {user.role === "admin" && <>
-                      <li><hr className="dropdown-divider" /></li>
-                      <li><Link className="dropdown-item" to="/admin">Admin Dashboard</Link></li>
-                      <li><Link className="dropdown-item" to="/admin/startups">Manage Startups</Link></li>
-                      <li><Link className="dropdown-item" to="/admin/events">Manage Events</Link></li>
-                       <li><Link className="dropdown-item" to="/admin/users">Manage Users</Link></li>
-                
-                    </>}
+                    {user?.role === "admin" && (
+                      <>
+                        <li><hr className="dropdown-divider" /></li>
+                        <li><Link className="dropdown-item" to="/admin">Admin Dashboard</Link></li>
+                        <li><Link className="dropdown-item" to="/admin/startups">Manage Startups</Link></li>
+                        <li><Link className="dropdown-item" to="/admin/events">Manage Events</Link></li>
+                        <li><Link className="dropdown-item" to="/admin/applications">Applications</Link></li>
+                        <li><Link className="dropdown-item" to="/admin/users">Manage Users</Link></li>
+                        <li><Link className="dropdown-item" to="/admin/reports">Reports</Link></li>
+                      </>
+                    )}
 
                     <li><hr className="dropdown-divider" /></li>
-                    <li><button className="dropdown-item" onClick={handleLogout}>Logout</button></li>
+                    <li>
+                      <button className="dropdown-item" type="button" onClick={handleLogout}>
+                        Logout
+                      </button>
+                    </li>
                   </ul>
                 </li>
               </>
             )}
 
+            {/* Mobile Submit Idea */}
             <li className="nav-item d-md-none mt-2">
-              <Link to="/add-idea" className="btn" style={{ background: STYLES.accent, color:"#fff", borderRadius:8, width:"100%" }}>Submit Idea</Link>
+              <Link className="btn btn-sm btn-accent w-100" to="/add-idea">Submit Idea</Link>
             </li>
 
           </ul>
