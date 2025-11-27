@@ -11,6 +11,7 @@ import AdminUsers from "./pages/AdminUsers";
 
 // pages
 import Home from "./pages/Home";
+import GCUIFHome from "./pages/GCUIFHome";
 import Directory from "./pages/Directory";
 import AddIdea from "./pages/AddIdea";
 import StartupProfile from "./pages/StartupProfile";
@@ -30,7 +31,8 @@ export default function App() {
 
       <main className="container my-4">
         <Routes>
-          <Route path="/" element={<Home />} />
+          <Route path="/" element={<GCUIFHome />} />
+          <Route path="/gcuel" element={<Home />} />
           <Route path="/directory" element={<Directory />} />
           <Route path="/add-idea" element={<AddIdea />} />
           <Route path="/startup/:id" element={<StartupProfile />} />
