@@ -147,7 +147,7 @@ export default function NavBar() {
           <img
             src="/logo192.png"
             alt="GCUIF logo"
-            style={{ width: 40, height: 40, marginRight: 10, borderRadius: 8, background: "#fff" }}
+            style={{ width: 40, height: 40, marginRight: 10, borderRadius: 8, background: "#000000" }}
           />
           <div style={{ lineHeight: 1 }}>
             <div style={{ fontWeight: 700 }}>GCUIF</div>
