@@ -127,9 +127,15 @@ a:hover { text-decoration: underline; }
   box-shadow: 0 10px 26px rgba(11,61,145,0.06);
 }
 .site-nav .btn-accent {
-  background: linear-gradient(90deg, var(--accent), var(--primary-2));
-  color: #fff;
+  background: linear-gradient(90deg, #ff8c00, #ffb347);
   border: none;
+  color: #ffffff;
+  box-shadow: 0 8px 24px rgba(255,140,0,0.4);
+}
+
+.site-nav .btn-accent:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.03);
 }
 .site-nav .btn-ghost {
   background: transparent;
