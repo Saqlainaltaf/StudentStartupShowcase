@@ -6,12 +6,16 @@ import { API_BASE } from "../config";
 
 function initialsFromName(name) {
   if (!name) return "U";
-  return name.split(" ").map(n => n[0]).slice(0, 2).join("").toUpperCase();
+  return name.split(" ").map((n) => n[0]).slice(0, 2).join("").toUpperCase();
 }
 
 export default function NavBar() {
   const [user, setUser] = useState(null);
-  const [summary, setSummary] = useState({ pendingApplications: 0, pendingIdeas: 0, featuredCount: 0 });
+  const [summary, setSummary] = useState({
+    pendingApplications: 0,
+    pendingIdeas: 0,
+    featuredCount: 0,
+  });
   const [loadingSummary, setLoadingSummary] = useState(false);
   const [query, setQuery] = useState("");
   const navigate = useNavigate();
@@ -35,9 +39,14 @@ export default function NavBar() {
       const res = await axios.get(`${API_BASE}/api/admin/summary`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      setSummary(res.data || { pendingApplications: 0, pendingIdeas: 0, featuredCount: 0 });
+      setSummary(
+        res.data || { pendingApplications: 0, pendingIdeas: 0, featuredCount: 0 }
+      );
     } catch (err) {
-      console.warn("Admin summary load failed:", err?.response?.data || err?.message || err);
+      console.warn(
+        "Admin summary load failed:",
+        err?.response?.data || err?.message || err
+      );
     } finally {
       setLoadingSummary(false);
     }
@@ -51,7 +60,9 @@ export default function NavBar() {
     }
     window.addEventListener("storage", onStorage);
 
-    function onLocalLogin() { readUser(); }
+    function onLocalLogin() {
+      readUser();
+    }
     window.addEventListener("local-login", onLocalLogin);
 
     return () => {
@@ -64,7 +75,9 @@ export default function NavBar() {
     fetchSummary();
     let t;
     if (user?.role === "admin") t = setInterval(fetchSummary, 60000);
-    return () => { if (t) clearInterval(t); };
+    return () => {
+      if (t) clearInterval(t);
+    };
   }, [user, fetchSummary]);
 
   function handleLogout() {
@@ -143,15 +156,27 @@ export default function NavBar() {
   return (
     <nav className="navbar navbar-expand-md site-nav" role="navigation" aria-label="Main">
       <div className="container">
-        <Link className="navbar-brand d-flex align-items-center" to="/" aria-label="GCUIF Home">
+        <Link
+          className="navbar-brand d-flex align-items-center"
+          to="/"
+          aria-label="GCUIF Home"
+        >
           <img
             src="/logo192.png"
             alt="GCUIF logo"
-            style={{ width: 40, height: 40, marginRight: 10, borderRadius: 8, background: "#000000" }}
+            style={{
+              width: 40,
+              height: 40,
+              marginRight: 10,
+              borderRadius: 8,
+              background: "#ffffff",
+            }}
           />
           <div style={{ lineHeight: 1 }}>
             <div style={{ fontWeight: 700 }}>GCUIF</div>
-            <small className="text-muted">Garden City Univ. Incubation Foundation</small>
+            <small className="text-muted">
+              Garden City Univ. Incubation Foundation
+            </small>
           </div>
         </Link>
 
@@ -169,30 +194,47 @@ export default function NavBar() {
 
         <div className="collapse navbar-collapse" id="mainNav">
           <ul className="navbar-nav ms-auto align-items-md-center">
-
             <li className="nav-item">
-              <NavLink className="nav-link" to="/">Home</NavLink>
+              <NavLink className="nav-link" to="/">
+                Home
+              </NavLink>
             </li>
 
             <li className="nav-item">
-              <a className="nav-link" href="#programs">Programs</a>
+              <a className="nav-link" href="#programs">
+                Programs
+              </a>
             </li>
 
             <li className="nav-item">
-              <NavLink className="nav-link" to="/gcuel">Entrepreneurship Lab</NavLink>
+              <NavLink className="nav-link" to="/gcuel">
+                Entrepreneurship Lab
+              </NavLink>
             </li>
 
             <li className="nav-item">
-              <NavLink className="nav-link" to="/directory">Startups</NavLink>
+              <NavLink className="nav-link" to="/directory">
+                Startups
+              </NavLink>
             </li>
 
             <li className="nav-item">
-              <NavLink className="nav-link" to="/events">Events</NavLink>
+              <NavLink className="nav-link" to="/events">
+                Events
+              </NavLink>
             </li>
 
             {/* Search bar */}
-            <li className="nav-item mx-2 d-none d-lg-block" style={{ minWidth: 220 }}>
-              <form onSubmit={onSearchSubmit} className="d-flex" role="search" aria-label="Search startups">
+            <li
+              className="nav-item mx-2 d-none d-lg-block"
+              style={{ minWidth: 220 }}
+            >
+              <form
+                onSubmit={onSearchSubmit}
+                className="d-flex"
+                role="search"
+                aria-label="Search startups"
+              >
                 <input
                   className="form-control form-control-sm"
                   placeholder="Search startups, skills, founders..."
@@ -205,17 +247,23 @@ export default function NavBar() {
 
             {/* Submit Idea */}
             <li className="nav-item ms-2 d-none d-md-block">
-              <Link className="btn btn-sm btn-accent" to="/add-idea">Submit Idea</Link>
+              <Link className="btn btn-sm btn-accent" to="/add-idea">
+                Submit Idea
+              </Link>
             </li>
 
             {/* Auth buttons */}
             {!user && (
               <>
                 <li className="nav-item ms-2">
-                  <NavLink className="nav-link" to="/login">Login</NavLink>
+                  <NavLink className="nav-link" to="/login">
+                    Login
+                  </NavLink>
                 </li>
                 <li className="nav-item">
-                  <NavLink className="nav-link" to="/register">Register</NavLink>
+                  <NavLink className="nav-link" to="/register">
+                    Register
+                  </NavLink>
                 </li>
               </>
             )}
@@ -223,7 +271,6 @@ export default function NavBar() {
             {/* User + Admin dropdowns */}
             {user && (
               <>
-                {/* Notifications for admin */}
                 {user.role === "admin" && (
                   <li className="nav-item dropdown ms-3 me-1">
                     <button
@@ -234,31 +281,51 @@ export default function NavBar() {
                       aria-label="Notifications"
                     >
                       <i className="bi bi-bell" aria-hidden="true" />
-                      {(summary.pendingApplications > 0 || summary.pendingIdeas > 0) && (
+                      {(summary.pendingApplications > 0 ||
+                        summary.pendingIdeas > 0) && (
                         <span
                           className="badge bg-danger text-white position-absolute"
                           style={{ top: -6, right: -6, fontSize: 10 }}
                         >
-                          {(summary.pendingApplications || 0) + (summary.pendingIdeas || 0)}
+                          {(summary.pendingApplications || 0) +
+                            (summary.pendingIdeas || 0)}
                         </span>
                       )}
                     </button>
-                    <ul className="dropdown-menu dropdown-menu-end p-2" aria-labelledby="notifMenu" style={{ minWidth: 260 }}>
+                    <ul
+                      className="dropdown-menu dropdown-menu-end p-2"
+                      aria-labelledby="notifMenu"
+                      style={{ minWidth: 260 }}
+                    >
                       <li className="small text-muted px-2">Notifications</li>
-                      <li><hr className="dropdown-divider" /></li>
+                      <li>
+                        <hr className="dropdown-divider" />
+                      </li>
                       <li className="px-2">
-                        <Link className="d-flex justify-content-between text-decoration-none" to="/admin/applications">
+                        <Link
+                          className="d-flex justify-content-between text-decoration-none"
+                          to="/admin/applications"
+                        >
                           <div>Pending applications</div>
-                          <div className="badge bg-secondary">{summary.pendingApplications ?? 0}</div>
+                          <div className="badge bg-secondary">
+                            {summary.pendingApplications ?? 0}
+                          </div>
                         </Link>
                       </li>
                       <li className="px-2">
-                        <Link className="d-flex justify-content-between text-decoration-none" to="/admin">
+                        <Link
+                          className="d-flex justify-content-between text-decoration-none"
+                          to="/admin"
+                        >
                           <div>Pending startups</div>
-                          <div className="badge bg-secondary">{summary.pendingIdeas ?? 0}</div>
+                          <div className="badge bg-secondary">
+                            {summary.pendingIdeas ?? 0}
+                          </div>
                         </Link>
                       </li>
-                      <li><hr className="dropdown-divider" /></li>
+                      <li>
+                        <hr className="dropdown-divider" />
+                      </li>
                       <li className="px-2 small text-muted">
                         Last updated: {loadingSummary ? "…" : "now"}
                       </li>
@@ -266,7 +333,6 @@ export default function NavBar() {
                   </li>
                 )}
 
-                {/* User menu */}
                 <li className="nav-item dropdown ms-2">
                   <button
                     className="btn btn-sm btn-ghost dropdown-toggle d-flex align-items-center"
@@ -278,28 +344,73 @@ export default function NavBar() {
                   >
                     <Avatar u={user} size={28} />
                     <span className="d-none d-md-inline">
-                      {user.name ? user.name.split(" ")[0] : user.email || "Account"}
+                      {user.name
+                        ? user.name.split(" ")[0]
+                        : user.email || "Account"}
                     </span>
                   </button>
-                  <ul className="dropdown-menu dropdown-menu-end" aria-labelledby="userMenu">
-                    <li><Link className="dropdown-item" to="/profile">Profile</Link></li>
-                    <li><Link className="dropdown-item" to="/my-applications">My Applications</Link></li>
+                  <ul
+                    className="dropdown-menu dropdown-menu-end"
+                    aria-labelledby="userMenu"
+                  >
+                    <li>
+                      <Link className="dropdown-item" to="/profile">
+                        Profile
+                      </Link>
+                    </li>
+                    <li>
+                      <Link className="dropdown-item" to="/my-applications">
+                        My Applications
+                      </Link>
+                    </li>
 
                     {user?.role === "admin" && (
                       <>
-                        <li><hr className="dropdown-divider" /></li>
-                        <li><Link className="dropdown-item" to="/admin">Admin Dashboard</Link></li>
-                        <li><Link className="dropdown-item" to="/admin/startups">Manage Startups</Link></li>
-                        <li><Link className="dropdown-item" to="/admin/events">Manage Events</Link></li>
-                        <li><Link className="dropdown-item" to="/admin/applications">Applications</Link></li>
-                        <li><Link className="dropdown-item" to="/admin/users">Manage Users</Link></li>
-                        <li><Link className="dropdown-item" to="/admin/reports">Reports</Link></li>
+                        <li>
+                          <hr className="dropdown-divider" />
+                        </li>
+                        <li>
+                          <Link className="dropdown-item" to="/admin">
+                            Admin Dashboard
+                          </Link>
+                        </li>
+                        <li>
+                          <Link className="dropdown-item" to="/admin/startups">
+                            Manage Startups
+                          </Link>
+                        </li>
+                        <li>
+                          <Link className="dropdown-item" to="/admin/events">
+                            Manage Events
+                          </Link>
+                        </li>
+                        <li>
+                          <Link className="dropdown-item" to="/admin/applications">
+                            Applications
+                          </Link>
+                        </li>
+                        <li>
+                          <Link className="dropdown-item" to="/admin/users">
+                            Manage Users
+                          </Link>
+                        </li>
+                        <li>
+                          <Link className="dropdown-item" to="/admin/reports">
+                            Reports
+                          </Link>
+                        </li>
                       </>
                     )}
 
-                    <li><hr className="dropdown-divider" /></li>
                     <li>
-                      <button className="dropdown-item" type="button" onClick={handleLogout}>
+                      <hr className="dropdown-divider" />
+                    </li>
+                    <li>
+                      <button
+                        className="dropdown-item"
+                        type="button"
+                        onClick={handleLogout}
+                      >
                         Logout
                       </button>
                     </li>
@@ -310,14 +421,13 @@ export default function NavBar() {
 
             {/* Mobile Submit Idea */}
             <li className="nav-item d-md-none mt-2">
-              <Link className="btn btn-sm btn-accent w-100" to="/add-idea">Submit Idea</Link>
+              <Link className="btn btn-sm btn-accent w-100" to="/add-idea">
+                Submit Idea
+              </Link>
             </li>
-
           </ul>
         </div>
       </div>
     </nav>
   );
 }
-/* ===== FORCE NAVBAR COLORS (OVERRIDE BOOTSTRAP) ===== */
-
