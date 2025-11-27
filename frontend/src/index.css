@@ -85,6 +85,22 @@ a:hover { text-decoration: underline; }
   box-shadow: 0 6px 20px rgba(30,115,232,0.08);
 }
 
+.navbar .nav-link {
+  color: var(--blue) !important;
+  font-weight: 600;
+}
+
+.navbar .nav-link.active {
+  color: var(--orange) !important;
+}
+
+.navbar-brand strong {
+  color: var(--blue);
+}
+
+.navbar-brand small {
+  color: #475569;
+}
 
 /* Brand */
 .site-nav .navbar-brand { color: #fff; }
