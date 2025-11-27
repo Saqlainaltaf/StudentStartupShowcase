@@ -6,23 +6,28 @@
 /* ---------- DESIGN TOKENS ---------- */
 :root{
   /* Palette (kept familiar but improved contrast) */
-  --bg: #f6f8fb;            /* page background */
-  --surface: #ffffff;       /* cards / surfaces */
-  --muted: #6c757d;         /* muted text */
-  --ink: #0f1720;           /* primary text (dark but not pure black) */
+ :root {
+  /* page base */
+  --bg: #F9FCFF;
+  --surface: #ffffff;
+  --ink: #0F172A;
+  --muted: #64748B;
 
-  --primary: #0B3D91;       /* deep university blue (nav/footer) */
-  --primary-2: #0A56D6;     /* brighter blue for accents */
-  --accent: #0FA958;        /* CTA green */
-  --accent-soft: rgba(15,169,88,0.12);
+  /* theme */
+  --nav-bg: #E6F2FF;
+  --blue: #1E73E8;
+  --orange: #FF8C00;
 
+  /* effects */
+  --glass: rgba(255,255,255,0.8);
+  --radius: 12px;
   --card-radius: 14px;
-  --radius: 10px;
 
-  --glass: rgba(255,255,255,0.6);
-
-  --font-sans: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  /* fonts */
+  --font-sans: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, Arial;
   --font-serif: "Playfair Display", Georgia, serif;
+}
+
 }
 
 /* ---------- BASE ---------- */
@@ -75,12 +80,11 @@ a:hover { text-decoration: underline; }
 
 /* ---------- NAVBAR (high-contrast, accessible) ---------- */
 .site-nav {
-  background: var(--primary);
-  color: #fff;
-  border-bottom: 1px solid rgba(255,255,255,0.06);
-  box-shadow: 0 6px 28px rgba(11,61,145,0.06);
-  backdrop-filter: blur(6px);
+  background: var(--nav-bg);
+  border-bottom: 2px solid rgba(30,115,232,0.12);
+  box-shadow: 0 6px 20px rgba(30,115,232,0.08);
 }
+
 
 /* Brand */
 .site-nav .navbar-brand { color: #fff; }
