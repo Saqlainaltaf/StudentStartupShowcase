@@ -1,3 +1,5 @@
 // frontend/src/config.js
-export const API_BASE = process.env.REACT_APP_API_BASE || "http://localhost:5000";
+// frontend/src/config.js
+export const API_BASE = "https://studentstartupshowcase-1.onrender.com";
+
 
