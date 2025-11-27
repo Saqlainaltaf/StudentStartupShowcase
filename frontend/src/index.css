@@ -302,58 +302,74 @@ a:focus, button:focus, input:focus {
 .dropdown-menu { background: var(--surface) !important; color: var(--ink) !important; }
 
 /* END */
+/* ===== DARK INSTITUTIONAL NAVBAR ===== */
+
 .site-nav {
-  background: #E6F2FF !important;
-  border-bottom: 2px solid rgba(30,115,232,0.15) !important;
+  background: linear-gradient(180deg, #0e1116, #111827) !important;
+  border-bottom: 1px solid rgba(255,255,255,0.06) !important;
+  box-shadow: 0 4px 25px rgba(0,0,0,0.4);
 }
 
-.navbar .navbar-brand strong {
-  color: #1E73E8 !important;
+/* Logo text */
+.navbar-brand div:first-child {
+  color: #f8fafc !important; /* Ivory White */
+  font-weight: 700;
 }
 
-.navbar .navbar-brand small {
-  color: #475569 !important;
+.navbar-brand small {
+  color: #9ca3af !important; /* Gray text */
 }
 
-/* All nav text */
+/* Links */
 .navbar .nav-link {
-  color: #1E73E8 !important;
-  font-weight: 600;
+  color: #93c5fd !important; /* Soft Blue */
+  font-weight: 500;
+  transition: color 0.2s ease, letter-spacing 0.15s ease;
 }
 
-/* Active page link */
-.navbar .nav-link.active {
-  color: #FF8C00 !important;
-}
-
-/* Hover effect */
+/* Hover */
 .navbar .nav-link:hover {
-  color: #FF8C00 !important;
+  color: #f59e0b !important; /* Orange accent */
+  letter-spacing: 0.2px;
+}
+
+/* Active link */
+.navbar .nav-link.active {
+  color: #fbbf24 !important;
+  font-weight: 600;
 }
 
 /* Buttons */
 .navbar .btn-accent {
-  background: linear-gradient(90deg, #FF8C00, #FFB347) !important;
-  color: #fff !important;
+  background: linear-gradient(90deg, #f59e0b, #fb923c) !important;
+  color: #111827 !important;
+  box-shadow: 0 8px 30px rgba(245,158,11,0.4);
 }
 
+/* Outline buttons */
 .navbar .btn-ghost {
-  color: #1E73E8 !important;
-  border-color: rgba(30,115,232,0.4) !important;
+  color: #93c5fd !important;
+  border-color: rgba(147,197,253,0.4) !important;
 }
 
-/* Dropdown */
+/* Dropdown menus */
 .dropdown-menu {
-  background: #ffffff;
+  background: #0f172a !important;
+  border: 1px solid rgba(255,255,255,0.06);
   border-radius: 10px;
 }
 
 .dropdown-item {
-  color: #1E73E8 !important;
+  color: #cbd5f5 !important;
 }
 
 .dropdown-item:hover {
-  background: rgba(30,115,232,0.08);
-  color: #FF8C00 !important;
+  background: rgba(255,255,255,0.05);
+  color: #fbbf24 !important;
+}
+
+/* Notification badge contrast */
+.badge.bg-danger {
+  background-color: #dc2626 !important;
 }
 
